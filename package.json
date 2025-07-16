@@ -10,6 +10,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@sendgrid/mail": "^8.1.5"
+    "@paypal/paypal-server-sdk": "^1.1.0",
+    "@sendgrid/mail": "^8.1.5",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.4.0",
+    "stripe": "^18.3.0"
   }
 }

@@ -142,3 +142,45 @@ The application follows a component-based architecture despite using vanilla Jav
 The codebase now includes a complete newsletter system with SendGrid integration, supporting both subscriber management and promotional campaigns with affiliate links. The system is designed to support future product launches and marketing initiatives.
 
 The codebase is structured to support future enhancements such as premium features, advanced ATS analysis, and expanded template collections while maintaining simplicity and performance.
+
+## Premium Subscription System
+
+### PayPal Integration
+- **Client ID**: BAAhtnXfCO2At0RMUwWN1IzNH9YJ2iTdUB6kaInTLIuvyUXjv7WbyixHk4R7dujr_Y0AY9ZT29WKL0d6X0
+- **Payment ID**: 45CXTW87SMB36 (extracted from user's PayPal form)
+- **Subscription Plan**: Premium ATS Scanner ($19.99/month)
+- **Server Backend**: paypal_server.py handles API calls and webhooks
+
+### Premium Features Architecture
+- **Advanced ATS Scanner**: Comprehensive resume analysis with detailed scoring
+- **Auto-Optimization**: Automatic transfer to resume builder with suggestions
+- **Job Matching**: AI-powered job recommendations based on resume analysis
+- **Location Search**: GPS-based job search with customizable radius (10-100 miles)
+- **Remote Work Finder**: Dedicated remote job filtering and recommendations
+- **Real-time Alerts**: Job notification system for new matching opportunities
+
+### Subscription Workflow
+1. User toggles premium analysis on ATS scanner
+2. PayPal subscription process initiated if not subscribed
+3. Premium features unlocked upon successful payment
+4. Comprehensive workflow: ATS scan → Resume optimization → Job matching
+5. Location-based job search with radius selection
+6. Automatic job alerts and notifications
+
+### Technical Implementation
+- **Frontend**: premium_subscription.js handles PayPal SDK integration
+- **Backend**: paypal_server.py manages API calls and webhooks
+- **Database**: Firebase stores subscription status and user premium data
+- **UI**: Premium toggle, subscription management, and enhanced results display
+
+### Files Added
+- `premium.html` - Subscription plans and premium features page
+- `premium_subscription.js` - Complete premium subscription management
+- `paypal_server.py` - PayPal API server with subscription handling
+- Enhanced ATS scanner with premium toggle and job matching integration
+
+### Deployment Considerations
+- PayPal Client Secret required for production API calls
+- Webhook endpoints configured for subscription event handling
+- Firebase security rules updated for premium user data
+- Location services require user permission for GPS-based job search
