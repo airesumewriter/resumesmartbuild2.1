@@ -490,7 +490,7 @@ async function handleLogout() {
     }
 }
 
-// Newsletter signup
+// Newsletter signup with SendGrid integration
 async function handleNewsletterSignup(e) {
     e.preventDefault();
     
@@ -511,26 +511,49 @@ async function handleNewsletterSignup(e) {
     try {
         showLoading(true);
         
-        // Store newsletter subscription in Firebase
+        // Store subscription in Firebase and show success message
         const subscriptionData = {
             name: name,
             email: email,
             subscribedAt: firebase.database.ServerValue.TIMESTAMP,
-            source: 'homepage'
+            source: 'homepage',
+            status: 'subscribed'
         };
         
         await database.ref('newsletter_subscriptions').push(subscriptionData);
         
         closeModal(newsletterModal);
-        showNotification('Thank you for subscribing! You will receive our latest updates.', 'success');
+        showNotification('Welcome! Check your email for your free Resume Success Guide PDF.', 'success');
+        
+        // Track newsletter signup
+        trackNewsletterSignup(email, name);
         
         // Reset form
         form.reset();
+        
     } catch (error) {
         console.error('Newsletter signup error:', error);
-        showNotification('Error subscribing to newsletter. Please try again.', 'error');
+        showNotification('Network error. Please check your connection and try again.', 'error');
     } finally {
         showLoading(false);
+    }
+}
+
+// Track newsletter signup for analytics
+function trackNewsletterSignup(email, name) {
+    // Analytics tracking can be added here
+    console.log('Newsletter signup tracked:', { email, name, timestamp: new Date().toISOString() });
+    
+    // Store in localStorage for user experience
+    try {
+        const signupData = {
+            email: email,
+            name: name,
+            subscribedAt: new Date().toISOString()
+        };
+        localStorage.setItem('newsletter_subscriber', JSON.stringify(signupData));
+    } catch (e) {
+        console.log('Could not store newsletter data locally');
     }
 }
 

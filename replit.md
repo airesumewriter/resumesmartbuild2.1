@@ -21,7 +21,9 @@ Preferred communication style: Simple, everyday language.
 - **Authentication**: Firebase Authentication with email/password and Google OAuth
 - **Database**: Firebase Realtime Database for user data storage
 - **File Storage**: Firebase Storage for resume templates and user uploads
-- **Third-party Services**: Newsletter integration capability (Spree or Firebase)
+- **Email Service**: SendGrid integration for newsletter and auto-responder emails
+- **Newsletter System**: Complete subscription management with PDF auto-responder
+- **Affiliate Support**: Email templates with affiliate link integration
 
 ### Key Components
 
@@ -103,8 +105,40 @@ Preferred communication style: Simple, everyday language.
 - Secure authentication flow with Firebase Auth
 - HTTPS enforcement for production deployment
 
+## Newsletter System
+
+### Email Configuration
+- **From Email**: info@resumesmartbuild.com (NameCheap private email)
+- **Service**: SendGrid API integration
+- **Auto-responder**: Welcome email with Resume Success Guide PDF attachment
+- **Tracking**: Firebase database stores subscriber data and email send status
+
+### Features
+- Newsletter subscription with name and email collection
+- Immediate auto-responder with PDF guide delivery
+- Promotional email templates with affiliate link support
+- Future product announcement capabilities
+- Subscriber analytics and management
+
+### Admin Functions
+- Send promotional emails to subscriber list
+- Manage affiliate product campaigns
+- Create future product teasers
+- Track newsletter performance metrics
+
+### Files Structure
+```
+newsletter.js - Main newsletter functionality with SendGrid
+admin_newsletter.py - Admin interface for campaigns
+pdf_generator.py - PDF content generation
+config.py - Server with newsletter API endpoints
+sample_pdfs/ - PDF attachments for emails
+```
+
 ## Development Notes
 
 The application follows a component-based architecture despite using vanilla JavaScript, with clear separation of concerns across modules. The Firebase integration provides a serverless backend solution, while the modular frontend architecture allows for easy maintenance and feature additions.
+
+The codebase now includes a complete newsletter system with SendGrid integration, supporting both subscriber management and promotional campaigns with affiliate links. The system is designed to support future product launches and marketing initiatives.
 
 The codebase is structured to support future enhancements such as premium features, advanced ATS analysis, and expanded template collections while maintaining simplicity and performance.
