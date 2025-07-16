@@ -1,0 +1,243 @@
+%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Pages
+/Kids [3 0 R]
+/Count 1
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+/Contents 4 0 R
+/Resources <<
+/ProcSet [/PDF /Text]
+/Font <<
+/F1 5 0 R
+/F2 6 0 R
+>>
+>>
+>>
+endobj
+
+4 0 obj
+<<
+/Length 2300
+>>
+stream
+BT
+/F2 18 Tf
+50 750 Td
+([YOUR NAME]) Tj
+0 -20 Td
+/F1 12 Tf
+(Software Engineer | Full-Stack Developer) Tj
+
+0 -25 Td
+/F1 10 Tf
+([your.email@example.com] | [GitHub] | [LinkedIn] | [Portfolio]) Tj
+0 -15 Td
+([Phone] | [Location] | [Personal Website]) Tj
+
+0 -35 Td
+/F1 14 Tf
+(TECHNICAL SUMMARY) Tj
+0 -20 Td
+/F1 11 Tf
+(Experienced software engineer with 8+ years developing scalable web applications) Tj
+0 -15 Td
+(and cloud-based solutions. Expertise in modern JavaScript frameworks, microservices) Tj
+0 -15 Td
+(architecture, and DevOps practices. Strong background in Agile development and) Tj
+0 -15 Td
+(technical leadership. Passionate about clean code and performance optimization.) Tj
+
+0 -30 Td
+/F1 14 Tf
+(TECHNICAL SKILLS) Tj
+0 -20 Td
+/F1 11 Tf
+(Programming Languages:) Tj
+0 -12 Td
+/F1 10 Tf
+(JavaScript/TypeScript, Python, Java, Go, SQL, HTML5, CSS3) Tj
+
+0 -15 Td
+/F1 11 Tf
+(Frameworks & Libraries:) Tj
+0 -12 Td
+/F1 10 Tf
+(React, Node.js, Express, Django, Spring Boot, Angular, Vue.js) Tj
+
+0 -15 Td
+/F1 11 Tf
+(Databases & Storage:) Tj
+0 -12 Td
+/F1 10 Tf
+(PostgreSQL, MongoDB, Redis, MySQL, Elasticsearch, DynamoDB) Tj
+
+0 -15 Td
+/F1 11 Tf
+(Cloud & DevOps:) Tj
+0 -12 Td
+/F1 10 Tf
+(AWS, Docker, Kubernetes, Jenkins, Terraform, GitLab CI/CD) Tj
+
+0 -15 Td
+/F1 11 Tf
+(Tools & Technologies:) Tj
+0 -12 Td
+/F1 10 Tf
+(Git, JIRA, Confluence, Postman, Grafana, New Relic, Slack) Tj
+
+0 -30 Td
+/F1 14 Tf
+(PROFESSIONAL EXPERIENCE) Tj
+
+0 -25 Td
+/F2 12 Tf
+(Senior Software Engineer) Tj
+350 0 Td
+/F1 10 Tf
+(2021 - Present) Tj
+-350 -15 Td
+/F1 11 Tf
+(Tech Innovators Inc. | San Francisco, CA) Tj
+0 -15 Td
+/F1 10 Tf
+(• Architected microservices platform serving 10M+ daily active users) Tj
+0 -12 Td
+(• Reduced API response time by 60% through database optimization) Tj
+0 -12 Td
+(• Led migration to AWS, reducing infrastructure costs by $200K annually) Tj
+0 -12 Td
+(• Mentored 5 junior developers and established code review best practices) Tj
+0 -12 Td
+(• Implemented automated testing increasing code coverage to 95%) Tj
+
+0 -25 Td
+/F2 12 Tf
+(Software Engineer) Tj
+350 0 Td
+/F1 10 Tf
+(2019 - 2021) Tj
+-350 -15 Td
+/F1 11 Tf
+(Digital Solutions LLC | Seattle, WA) Tj
+0 -15 Td
+/F1 10 Tf
+(• Developed React-based dashboard application for enterprise clients) Tj
+0 -12 Td
+(• Built RESTful APIs handling 1M+ requests per day) Tj
+0 -12 Td
+(• Collaborated with UX team to implement responsive design patterns) Tj
+0 -12 Td
+(• Integrated third-party APIs and payment processing systems) Tj
+
+0 -25 Td
+/F2 12 Tf
+(Junior Software Developer) Tj
+350 0 Td
+/F1 10 Tf
+(2017 - 2019) Tj
+-350 -15 Td
+/F1 11 Tf
+(StartupTech | Austin, TX) Tj
+0 -15 Td
+/F1 10 Tf
+(• Contributed to full-stack web application development) Tj
+0 -12 Td
+(• Participated in Agile development process and sprint planning) Tj
+0 -12 Td
+(• Wrote unit tests and maintained documentation) Tj
+
+0 -30 Td
+/F1 14 Tf
+(KEY PROJECTS) Tj
+
+0 -20 Td
+/F1 11 Tf
+(E-commerce Platform Redesign) Tj
+0 -12 Td
+/F1 10 Tf
+(Led development of new checkout system increasing conversion by 25%) Tj
+0 -10 Td
+(Technologies: React, Node.js, PostgreSQL, Stripe API) Tj
+
+0 -18 Td
+/F1 11 Tf
+(Real-time Analytics Dashboard) Tj
+0 -12 Td
+/F1 10 Tf
+(Built live data visualization tool for business intelligence team) Tj
+0 -10 Td
+(Technologies: Vue.js, WebSocket, Redis, D3.js) Tj
+
+0 -25 Td
+/F1 14 Tf
+(EDUCATION & CERTIFICATIONS) Tj
+0 -20 Td
+/F1 11 Tf
+(Bachelor of Science in Computer Science) Tj
+0 -12 Td
+/F1 10 Tf
+(University of Technology | Graduated 2017 | GPA: 3.8/4.0) Tj
+
+0 -15 Td
+/F1 11 Tf
+(Certifications:) Tj
+0 -12 Td
+/F1 10 Tf
+(• AWS Certified Solutions Architect \(2022\)) Tj
+0 -10 Td
+(• Certified Kubernetes Administrator \(2021\)) Tj
+0 -10 Td
+(• Scrum Master Certification \(2020\)) Tj
+
+ET
+endstream
+endobj
+
+5 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+
+6 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica-Bold
+>>
+endobj
+
+xref
+0 7
+0000000000 65535 f 
+0000000010 00000 n 
+0000000053 00000 n 
+0000000110 00000 n 
+0000000320 00000 n 
+0000002675 00000 n 
+0000002742 00000 n 
+trailer
+<<
+/Size 7
+/Root 1 0 R
+>>
+startxref
+2813
+%%EOF
