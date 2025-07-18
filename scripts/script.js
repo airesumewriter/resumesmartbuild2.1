@@ -674,12 +674,22 @@ function showNotification(message, type = 'info') {
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <span class="notification-message">${message}</span>
-            <button class="notification-close">&times;</button>
-        </div>
-    `;
+    
+    // Create safe HTML structure
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'notification-content';
+    
+    const messageSpan = document.createElement('span');
+    messageSpan.className = 'notification-message';
+    messageSpan.textContent = message; // Safe text-only assignment
+    
+    const closeButton = document.createElement('button');
+    closeButton.className = 'notification-close';
+    closeButton.innerHTML = '&times;';
+    
+    contentDiv.appendChild(messageSpan);
+    contentDiv.appendChild(closeButton);
+    notification.appendChild(contentDiv);
     
     // Add styles
     notification.style.cssText = `
