@@ -46,7 +46,7 @@ class SecureHTTPHandler(BaseHTTPRequestHandler):
                 'environment': os.getenv('PAYPAL_ENVIRONMENT', 'sandbox')
             },
             'firebase': {
-                'apiKey': os.getenv('VITE_FIREBASE_API_KEY', 'AIzaSyA78g7-5gHQ8MK4JZQjdJSZ4F2sWr0vQ_Y'),
+                'apiKey': os.getenv('VITE_FIREBASE_API_KEY'),
                 'authDomain': f"{os.getenv('VITE_FIREBASE_PROJECT_ID', 'resumesmartbuild')}.firebaseapp.com",
                 'projectId': os.getenv('VITE_FIREBASE_PROJECT_ID', 'resumesmartbuild'),
                 'storageBucket': f"{os.getenv('VITE_FIREBASE_PROJECT_ID', 'resumesmartbuild')}.appspot.com",
