@@ -26,12 +26,12 @@ class SecurityManager {
         meta.httpEquiv = 'Content-Security-Policy';
         meta.content = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://www.chatbase.co https://www.sandbox.paypal.com https://www.paypal.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://unpkg.com https://www.chatbase.co https://widget.chatbase.co https://www.sandbox.paypal.com https://www.paypal.com",
             "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
             "font-src 'self' https://cdnjs.cloudflare.com",
             "img-src 'self' data: https: blob:",
-            "connect-src 'self' https://resumesmartbuild.firebaseio.com https://api.paypal.com https://api.sandbox.paypal.com",
-            "frame-src 'none'",
+            "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://resumesmartbuild-default-rtdb.firebaseio.com https://api.paypal.com https://api.sandbox.paypal.com https://www.chatbase.co https://widget.chatbase.co",
+            "frame-src 'self' https://widget.chatbase.co https://www.sandbox.paypal.com https://www.paypal.com",
             "object-src 'none'",
             "base-uri 'self'"
         ].join('; ');

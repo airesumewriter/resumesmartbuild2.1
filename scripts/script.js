@@ -8,8 +8,10 @@ let firebaseConfig = {};
 async function initializeFirebase() {
     try {
         const response = await fetch('/api/config');
-        firebaseConfig = await response.json();
-        firebase.initializeApp(firebaseConfig);
+        const config = await response.json();
+        
+        // Initialize Firebase with the loaded configuration
+        firebase.initializeApp(config.firebase);
         
         // Initialize auth and database services
         auth = firebase.auth();
@@ -18,7 +20,20 @@ async function initializeFirebase() {
         console.log('Firebase initialized with secure config');
         
         // Setup auth state listener
-        auth.onAuthStateChanged(handleAuthStateChange);
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                isAuthenticated = true;
+                updateUIForAuthenticatedUser(user);
+            } else {
+                currentUser = null;
+                isAuthenticated = false;
+                updateUIForGuestUser();
+            }
+        });
+        
+        // Initialize the rest of the application after Firebase is ready
+        initializeApp();
         
     } catch (error) {
         console.error('Failed to load Firebase config:', error);
@@ -65,29 +80,21 @@ const tabContents = document.querySelectorAll('.tab-content');
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+    console.log('ResumeSmartBuild v1.0 - Script loaded successfully');
+    
+    // Initialize Firebase first, then the rest of the app
+    initializeFirebase();
+    
+    // Setup event listeners immediately (don't depend on Firebase)
     setupEventListeners();
     initializeScrollReveal();
     handleToolCards();
 });
 
-// Initialize the application
+// Initialize the application (called after Firebase is ready)
 function initializeApp() {
     console.log('ResumeSmartBuild v1.0 - Initializing...');
     
-    // Check authentication state
-    auth.onAuthStateChanged(function(user) {
-        if (user) {
-            currentUser = user;
-            isAuthenticated = true;
-            updateUIForAuthenticatedUser(user);
-        } else {
-            currentUser = null;
-            isAuthenticated = false;
-            updateUIForGuestUser();
-        }
-    });
-
     // Handle mobile navigation
     setupMobileNavigation();
     

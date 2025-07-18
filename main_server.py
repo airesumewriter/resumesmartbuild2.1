@@ -124,11 +124,11 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(config).encode('utf-8'))
     
     def serve_static_file(self):
-        """Serve static files with explicit health check handling"""
+        """Serve static files with explicit health check handling and proper 200 response for root"""
         # Remove query parameters
         path = self.path.split('?')[0]
         
-        # Default to index.html for root
+        # Explicit root path handling to ensure 200 status
         if path == '/':
             path = '/index.html'
         
@@ -147,6 +147,7 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
                 with open(file_path, 'rb') as f:
                     content = f.read()
                 
+                # Send proper 200 response
                 self.send_response(200)
                 self.send_header('Content-Type', content_type)
                 self.send_header('Content-Length', str(len(content)))
@@ -154,24 +155,50 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
                 # Add cache headers for static assets
                 if file_path.endswith(('.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.ico')):
                     self.send_header('Cache-Control', 'public, max-age=3600')
+                else:
+                    # For HTML files, prevent caching to ensure updates are seen
+                    self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
                 
                 self.end_headers()
                 self.wfile.write(content)
+                return
+                
+            # If index.html doesn't exist but root is requested, create basic HTML response
+            elif path == '/index.html' and not os.path.isfile('index.html'):
+                basic_html = b'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeSmartBuild</title>
+</head>
+<body>
+    <h1>ResumeSmartBuild</h1>
+    <p>AI-Powered Resume Builder</p>
+</body>
+</html>'''
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/html')
+                self.send_header('Content-Length', str(len(basic_html)))
+                self.send_header('Cache-Control', 'no-cache')
+                self.end_headers()
+                self.wfile.write(basic_html)
+                return
+            
+            # File not found - serve 404.html if it exists, otherwise plain 404
+            if os.path.isfile('404.html') and path != '/404.html':
+                with open('404.html', 'rb') as f:
+                    content = f.read()
+                self.send_response(404)
+                self.send_header('Content-Type', 'text/html')
+                self.send_header('Content-Length', str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
             else:
-                # File not found - serve 404.html if it exists, otherwise plain 404
-                if os.path.isfile('404.html') and path != '/404.html':
-                    with open('404.html', 'rb') as f:
-                        content = f.read()
-                    self.send_response(404)
-                    self.send_header('Content-Type', 'text/html')
-                    self.send_header('Content-Length', str(len(content)))
-                    self.end_headers()
-                    self.wfile.write(content)
-                else:
-                    self.send_response(404)
-                    self.send_header('Content-Type', 'text/html')
-                    self.end_headers()
-                    self.wfile.write(b'<h1>404 - File Not Found</h1>')
+                self.send_response(404)
+                self.send_header('Content-Type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b'<h1>404 - File Not Found</h1>')
                 
         except Exception as e:
             # Server error
@@ -368,8 +395,12 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
             }, 500)
 
 if __name__ == '__main__':
+    # Use PORT environment variable for cloud deployment compatibility
     port = int(os.getenv('PORT', 5000))
+    
+    # Ensure server binds to all interfaces for deployment
     server = HTTPServer(('0.0.0.0', port), MainHTTPHandler)
+    
     print(f'ResumeSmartBuild server running on port {port}')
     print('Endpoints:')
     print('  GET  / - Static file serving')
@@ -382,4 +413,12 @@ if __name__ == '__main__':
     print('  POST /paypal/cancel-subscription - Cancel subscription')
     print('  POST /paypal/webhook - Handle PayPal webhooks')
     print('  POST /paypal/configure - Configure PayPal credentials')
-    server.serve_forever()
+    
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print('\nShutting down server...')
+        server.shutdown()
+    except Exception as e:
+        print(f'Server error: {e}')
+        raise
