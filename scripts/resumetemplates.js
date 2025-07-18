@@ -96,33 +96,79 @@ function createTemplateCard(template) {
     card.setAttribute('data-category', template.category);
     card.setAttribute('data-premium', template.isPremium);
 
-    const badgeClass = template.isPremium ? 'premium' : 'free';
-    const badgeText = template.isPremium ? 'Premium' : 'Free';
+    // Create template preview section
+    const previewDiv = document.createElement('div');
+    previewDiv.className = 'template-preview';
+    
+    const icon = document.createElement('i');
+    icon.className = template.previewIcon;
+    
+    const badge = document.createElement('span');
+    badge.className = `template-badge ${template.isPremium ? 'premium' : 'free'}`;
+    badge.textContent = template.isPremium ? 'Premium' : 'Free';
+    
+    previewDiv.appendChild(icon);
+    previewDiv.appendChild(badge);
 
-    card.innerHTML = `
-        <div class="template-preview">
-            <i class="${template.previewIcon}"></i>
-            <span class="template-badge ${badgeClass}">${badgeText}</span>
-        </div>
-        <div class="template-info">
-            <h3>${template.name}</h3>
-            <p>${template.description}</p>
-            <div class="template-features">
-                ${template.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
-            </div>
-            <div class="template-actions">
-                <button class="btn-primary template-preview-btn" data-template-id="${template.id}">
-                    <i class="fas fa-eye"></i>
-                    Preview
-                </button>
-                <button class="btn-secondary template-download-btn" data-template-id="${template.id}" 
-                        ${template.isPremium ? 'data-premium="true"' : ''}>
-                    <i class="fas fa-download"></i>
-                    ${template.isPremium ? '🔒 Download' : 'Download'}
-                </button>
-            </div>
-        </div>
-    `;
+    // Create template info section
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'template-info';
+    
+    const title = document.createElement('h3');
+    title.textContent = template.name;
+    
+    const description = document.createElement('p');
+    description.textContent = template.description;
+    
+    // Create features section
+    const featuresDiv = document.createElement('div');
+    featuresDiv.className = 'template-features';
+    
+    template.features.forEach(feature => {
+        const featureTag = document.createElement('span');
+        featureTag.className = 'feature-tag';
+        featureTag.textContent = feature;
+        featuresDiv.appendChild(featureTag);
+    });
+    
+    // Create actions section
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'template-actions';
+    
+    // Preview button
+    const previewBtn = document.createElement('button');
+    previewBtn.className = 'btn-primary template-preview-btn';
+    previewBtn.setAttribute('data-template-id', template.id);
+    
+    const previewIcon = document.createElement('i');
+    previewIcon.className = 'fas fa-eye';
+    previewBtn.appendChild(previewIcon);
+    previewBtn.appendChild(document.createTextNode(' Preview'));
+    
+    // Download button
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'btn-secondary template-download-btn';
+    downloadBtn.setAttribute('data-template-id', template.id);
+    if (template.isPremium) {
+        downloadBtn.setAttribute('data-premium', 'true');
+    }
+    
+    const downloadIcon = document.createElement('i');
+    downloadIcon.className = 'fas fa-download';
+    downloadBtn.appendChild(downloadIcon);
+    downloadBtn.appendChild(document.createTextNode(template.isPremium ? ' 🔒 Download' : ' Download'));
+    
+    actionsDiv.appendChild(previewBtn);
+    actionsDiv.appendChild(downloadBtn);
+    
+    // Assemble the card
+    infoDiv.appendChild(title);
+    infoDiv.appendChild(description);
+    infoDiv.appendChild(featuresDiv);
+    infoDiv.appendChild(actionsDiv);
+    
+    card.appendChild(previewDiv);
+    card.appendChild(infoDiv);
 
     return card;
 }
