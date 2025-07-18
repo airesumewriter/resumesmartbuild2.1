@@ -1675,6 +1675,31 @@ body {
         display: flex !important;
     }
 
+    /* Force mobile menu to work properly */
+    .navbar .nav-container .nav-menu {
+        display: none;
+    }
+
+    .navbar .nav-container .nav-menu.active {
+        display: flex !important;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        border-top: 1px solid #E5E7EB;
+        z-index: 999;
+    }
+
+    .navbar .nav-container .nav-toggle {
+        display: flex !important;
+        flex-direction: column;
+        cursor: pointer;
+    }
+
     .nav-menu .nav-link {
         padding: 15px 0;
         border-bottom: 1px solid #eee;
