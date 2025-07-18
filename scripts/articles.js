@@ -174,22 +174,57 @@ function createArticleCard(article) {
     const formattedDate = formatDate(article.publishDate);
     const categoryName = getCategoryName(article.category);
 
-    card.innerHTML = `
-        <div class="article-image">
-            <i class="${article.icon}"></i>
-        </div>
-        <div class="article-content">
-            <span class="article-category">${categoryName}</span>
-            <h3>${article.title}</h3>
-            <p>${article.description}</p>
-            <div class="article-meta">
-                <span><i class="fas fa-clock"></i> ${article.readTime}</span>
-                <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
-                ${article.author ? `<span><i class="fas fa-user"></i> ${article.author}</span>` : ''}
-            </div>
-            <a href="${article.url}" class="article-link">Read More</a>
-        </div>
-    `;
+    // Create elements safely without innerHTML
+    const articleImage = document.createElement('div');
+    articleImage.className = 'article-image';
+    const icon = document.createElement('i');
+    icon.className = article.icon;
+    articleImage.appendChild(icon);
+
+    const articleContent = document.createElement('div');
+    articleContent.className = 'article-content';
+
+    const categorySpan = document.createElement('span');
+    categorySpan.className = 'article-category';
+    categorySpan.textContent = categoryName;
+
+    const title = document.createElement('h3');
+    title.textContent = article.title;
+
+    const description = document.createElement('p');
+    description.textContent = article.description;
+
+    const articleMeta = document.createElement('div');
+    articleMeta.className = 'article-meta';
+
+    const timeSpan = document.createElement('span');
+    timeSpan.innerHTML = `<i class="fas fa-clock"></i> ${article.readTime}`;
+
+    const dateSpan = document.createElement('span');
+    dateSpan.innerHTML = `<i class="fas fa-calendar"></i> ${formattedDate}`;
+
+    articleMeta.appendChild(timeSpan);
+    articleMeta.appendChild(dateSpan);
+
+    if (article.author) {
+        const authorSpan = document.createElement('span');
+        authorSpan.innerHTML = `<i class="fas fa-user"></i> ${article.author}`;
+        articleMeta.appendChild(authorSpan);
+    }
+
+    const link = document.createElement('a');
+    link.href = article.url;
+    link.className = 'article-link';
+    link.textContent = 'Read More';
+
+    articleContent.appendChild(categorySpan);
+    articleContent.appendChild(title);
+    articleContent.appendChild(description);
+    articleContent.appendChild(articleMeta);
+    articleContent.appendChild(link);
+
+    card.appendChild(articleImage);
+    card.appendChild(articleContent);
 
     // Add hover effects
     card.addEventListener('mouseenter', function() {
@@ -349,12 +384,44 @@ function highlightSearchTerm(card, term) {
     const title = card.querySelector('h3');
     const description = card.querySelector('p');
     
-    // Simple highlighting (in production, use a more robust solution)
+    // Safe highlighting without innerHTML
     [title, description].forEach(element => {
         const text = element.textContent;
-        const regex = new RegExp(`(${term})`, 'gi');
-        element.innerHTML = text.replace(regex, '<mark>$1</mark>');
+        const regex = new RegExp(`(${escapeRegExp(term)})`, 'gi');
+        
+        // Create a document fragment to safely build highlighted content
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let match;
+        
+        while ((match = regex.exec(text)) !== null) {
+            // Add text before the match
+            if (match.index > lastIndex) {
+                fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+            }
+            
+            // Add highlighted match
+            const mark = document.createElement('mark');
+            mark.textContent = match[1];
+            fragment.appendChild(mark);
+            
+            lastIndex = match.index + match[1].length;
+        }
+        
+        // Add remaining text
+        if (lastIndex < text.length) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+        
+        // Replace element content with fragment
+        element.textContent = '';
+        element.appendChild(fragment);
     });
+}
+
+// Helper function to escape special regex characters
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // Get related articles based on category
