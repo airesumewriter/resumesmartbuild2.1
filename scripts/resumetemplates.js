@@ -562,20 +562,28 @@ function setupTemplateFilters() {
     const filterContainer = document.querySelector('.template-filters');
     if (!filterContainer) return;
 
-    // Create filter buttons
-    const filtersHTML = templateCategories.map(category => `
-        <button class="filter-btn ${category.id === 'all' ? 'active' : ''}" 
-                data-category="${category.id}">
-            ${category.name}
-        </button>
-    `).join('');
+    // Clear container and create elements using DOM methods
+    filterContainer.innerHTML = '';
 
-    filterContainer.innerHTML = `
-        <h3>Filter Templates</h3>
-        <div class="filter-buttons">
-            ${filtersHTML}
-        </div>
-    `;
+    // Create title
+    const title = document.createElement('h3');
+    title.textContent = 'Filter Templates';
+    filterContainer.appendChild(title);
+
+    // Create filter buttons container
+    const filterButtonsDiv = document.createElement('div');
+    filterButtonsDiv.className = 'filter-buttons';
+
+    // Create filter buttons using DOM methods
+    templateCategories.forEach(category => {
+        const button = document.createElement('button');
+        button.className = `filter-btn ${category.id === 'all' ? 'active' : ''}`;
+        button.setAttribute('data-category', category.id);
+        button.textContent = category.name;
+        filterButtonsDiv.appendChild(button);
+    });
+
+    filterContainer.appendChild(filterButtonsDiv);
 
     // Add filter functionality
     const filterButtons = filterContainer.querySelectorAll('.filter-btn');
