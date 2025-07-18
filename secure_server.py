@@ -15,6 +15,14 @@ class SecureHTTPHandler(BaseHTTPRequestHandler):
         """Handle GET requests"""
         parsed_path = urlparse(self.path)
         
+        # Health check endpoint for deployment
+        if parsed_path.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'status': 'healthy', 'service': 'ResumeSmartBuild'}).encode('utf-8'))
+            return
+        
         # Handle API config endpoint
         if parsed_path.path == '/api/config':
             self.serve_config()
@@ -62,7 +70,7 @@ class SecureHTTPHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(config).encode('utf-8'))
     
     def serve_static_file(self):
-        """Serve static files"""
+        """Serve static files with explicit health check handling"""
         # Remove query parameters
         path = self.path.split('?')[0]
         
@@ -96,11 +104,20 @@ class SecureHTTPHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(content)
             else:
-                # File not found
-                self.send_response(404)
-                self.send_header('Content-Type', 'text/html')
-                self.end_headers()
-                self.wfile.write(b'<h1>404 - File Not Found</h1>')
+                # File not found - serve 404.html if it exists, otherwise plain 404
+                if os.path.isfile('404.html') and path != '/404.html':
+                    with open('404.html', 'rb') as f:
+                        content = f.read()
+                    self.send_response(404)
+                    self.send_header('Content-Type', 'text/html')
+                    self.send_header('Content-Length', str(len(content)))
+                    self.end_headers()
+                    self.wfile.write(content)
+                else:
+                    self.send_response(404)
+                    self.send_header('Content-Type', 'text/html')
+                    self.end_headers()
+                    self.wfile.write(b'<h1>404 - File Not Found</h1>')
                 
         except Exception as e:
             # Server error
