@@ -13,7 +13,7 @@ import base64
 
 class PayPalSubscriptionHandler(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        self.paypal_client_id = 'BAAhtnXfCO2At0RMUwWN1IzNH9YJ2iTdUB6kaInTLIuvyUXjv7WbyixHk4R7dujr_Y0AY9ZT29WKL0d6X0'
+        self.paypal_client_id = os.getenv('PAYPAL_CLIENT_ID', 'BAAhtnXfCO2At0RMUwWN1IzNH9YJ2iTdUB6kaInTLIuvyUXjv7WbyixHk4R7dujr_Y0AY9ZT29WKL0d6X0')
         self.paypal_client_secret = os.getenv('PAYPAL_CLIENT_SECRET', '')
         self.paypal_base_url = 'https://api-m.sandbox.paypal.com'  # Use sandbox for testing
         self.payment_id = '45CXTW87SMB36'
@@ -35,6 +35,8 @@ class PayPalSubscriptionHandler(BaseHTTPRequestHandler):
             self.handle_status_check()
         elif parsed_path.path == '/paypal/plans':
             self.handle_get_plans()
+        elif parsed_path.path == '/paypal/test':
+            self.handle_test_connection()
         else:
             self.send_error(404, 'Endpoint not found')
 
@@ -48,6 +50,8 @@ class PayPalSubscriptionHandler(BaseHTTPRequestHandler):
             self.handle_cancel_subscription()
         elif parsed_path.path == '/paypal/webhook':
             self.handle_webhook()
+        elif parsed_path.path == '/paypal/configure':
+            self.handle_configure()
         else:
             self.send_error(404, 'Endpoint not found')
 
@@ -278,6 +282,92 @@ class PayPalSubscriptionHandler(BaseHTTPRequestHandler):
             print(f"Payment completed: {webhook_data}")
         
         self.send_json_response({'status': 'received'})
+
+    def handle_configure(self):
+        """Handle PayPal configuration"""
+        self.send_cors_headers()
+        
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        request_data = json.loads(post_data.decode('utf-8'))
+        
+        # In a real implementation, you would save these to environment variables
+        # For now, we'll just validate them
+        client_id = request_data.get('client_id')
+        client_secret = request_data.get('client_secret')
+        
+        if not client_id or not client_secret:
+            self.send_json_response({
+                'error': 'Both client_id and client_secret are required'
+            }, 400)
+            return
+        
+        # Test the credentials by trying to get an access token
+        temp_handler = PayPalSubscriptionHandler.__new__(PayPalSubscriptionHandler)
+        temp_handler.paypal_client_id = client_id
+        temp_handler.paypal_client_secret = client_secret
+        temp_handler.paypal_base_url = self.paypal_base_url
+        
+        access_token = temp_handler.get_access_token()
+        
+        if access_token:
+            self.send_json_response({
+                'success': True,
+                'message': 'PayPal configuration is valid and working'
+            })
+        else:
+            self.send_json_response({
+                'error': 'Invalid PayPal credentials. Please check your Client ID and Secret.'
+            }, 400)
+
+    def handle_test_connection(self):
+        """Test PayPal API connection"""
+        self.send_cors_headers()
+        
+        if not self.paypal_client_secret:
+            self.send_json_response({
+                'success': False,
+                'error': 'PayPal Client Secret not configured'
+            }, 400)
+            return
+        
+        access_token = self.get_access_token()
+        
+        if access_token:
+            # Test API call to get account info
+            try:
+                headers = {
+                    'Authorization': f'Bearer {access_token}',
+                    'Accept': 'application/json',
+                }
+                
+                response = requests.get(
+                    f'{self.paypal_base_url}/v1/identity/oauth2/userinfo?schema=paypalv1.1',
+                    headers=headers
+                )
+                
+                if response.status_code == 200:
+                    self.send_json_response({
+                        'success': True,
+                        'message': 'PayPal API connection successful',
+                        'client_id': self.paypal_client_id
+                    })
+                else:
+                    self.send_json_response({
+                        'success': False,
+                        'error': f'PayPal API test failed: {response.status_code}'
+                    }, 500)
+                    
+            except Exception as e:
+                self.send_json_response({
+                    'success': False,
+                    'error': f'PayPal API test error: {str(e)}'
+                }, 500)
+        else:
+            self.send_json_response({
+                'success': False,
+                'error': 'Failed to get PayPal access token'
+            }, 500)
 
     def send_cors_headers(self):
         """Send CORS headers"""

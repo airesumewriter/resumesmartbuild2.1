@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayPal Configuration - ResumeSmartBuild</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <style>
+        .config-container {
+            max-width: 600px;
+            margin: 120px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .config-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .config-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .config-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .form-group input {
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .help-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        .config-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn-save {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .btn-save:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-test {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .btn-test:hover {
+            background: #059669;
+        }
+        
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .status-success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+        
+        .status-error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-link:hover {
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Home
+    </a>
+    
+    <div class="config-container">
+        <div class="config-header">
+            <h1><i class="fab fa-paypal"></i> PayPal Configuration</h1>
+            <p>Enter your PayPal API credentials to enable premium subscription features</p>
+        </div>
+        
+        <form class="config-form" id="paypal-config-form">
+            <div class="form-group">
+                <label for="client-id">PayPal Client ID</label>
+                <input type="text" id="client-id" name="client-id" placeholder="Enter your PayPal Client ID" required>
+                <div class="help-text">
+                    Find this in your PayPal Developer Dashboard under "My Apps & Credentials"
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="client-secret">PayPal Client Secret</label>
+                <input type="password" id="client-secret" name="client-secret" placeholder="Enter your PayPal Client Secret" required>
+                <div class="help-text">
+                    Keep this secret safe. It's used to authenticate API requests to PayPal.
+                </div>
+            </div>
+            
+            <div class="config-actions">
+                <button type="submit" class="btn-save" id="save-config">
+                    <i class="fas fa-save"></i> Save Configuration
+                </button>
+                <button type="button" class="btn-test" id="test-connection">
+                    <i class="fas fa-plug"></i> Test Connection
+                </button>
+            </div>
+        </form>
+        
+        <div class="status-message" id="status-message"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('paypal-config-form');
+        const saveBtn = document.getElementById('save-config');
+        const testBtn = document.getElementById('test-connection');
+        const statusMessage = document.getElementById('status-message');
+        const clientIdInput = document.getElementById('client-id');
+        const clientSecretInput = document.getElementById('client-secret');
+
+        // Load existing configuration
+        loadExistingConfig();
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await saveConfiguration();
+        });
+
+        testBtn.addEventListener('click', async function() {
+            await testPayPalConnection();
+        });
+
+        async function loadExistingConfig() {
+            try {
+                const response = await fetch('/paypal/status');
+                const data = await response.json();
+                
+                if (data.client_id) {
+                    clientIdInput.value = data.client_id;
+                }
+                
+                if (data.configured) {
+                    showStatus('Configuration loaded successfully', 'success');
+                }
+            } catch (error) {
+                console.log('No existing configuration found');
+            }
+        }
+
+        async function saveConfiguration() {
+            const clientId = clientIdInput.value.trim();
+            const clientSecret = clientSecretInput.value.trim();
+
+            if (!clientId || !clientSecret) {
+                showStatus('Please enter both Client ID and Client Secret', 'error');
+                return;
+            }
+
+            try {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                const response = await fetch('/paypal/configure', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        client_id: clientId,
+                        client_secret: clientSecret
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatus('PayPal configuration saved successfully!', 'success');
+                    // Test connection automatically after saving
+                    setTimeout(() => testPayPalConnection(), 1000);
+                } else {
+                    showStatus(result.error || 'Failed to save configuration', 'error');
+                }
+            } catch (error) {
+                showStatus('Error saving configuration: ' + error.message, 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Configuration';
+            }
+        }
+
+        async function testPayPalConnection() {
+            try {
+                testBtn.disabled = true;
+                testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+
+                const response = await fetch('/paypal/test');
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showStatus('PayPal connection test successful!', 'success');
+                } else {
+                    showStatus(result.error || 'PayPal connection test failed', 'error');
+                }
+            } catch (error) {
+                showStatus('Error testing connection: ' + error.message, 'error');
+            } finally {
+                testBtn.disabled = false;
+                testBtn.innerHTML = '<i class="fas fa-plug"></i> Test Connection';
+            }
+        }
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.style.display = 'block';
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+</html>
