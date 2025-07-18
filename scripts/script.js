@@ -1,20 +1,35 @@
 // Main application script for ResumeSmartBuild
 // Handles Firebase authentication, modals, navigation, and core functionality
 
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCpLscgzlbaIz6vwLZxrNg8s0IUpS-ls3s",
-    authDomain: "resumesmartbuild.firebaseapp.com",
-    projectId: "resumesmartbuild",
-    storageBucket: "resumesmartbuild.appspot.com",
-    messagingSenderId: "190620294122",
-    appId: "1:190620294122:web:9a93a5763ddcf3e1c63093"
-};
+// Firebase Configuration - Load from environment
+let firebaseConfig = {};
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const database = firebase.database();
+// Initialize Firebase with dynamic config
+async function initializeFirebase() {
+    try {
+        const response = await fetch('/api/config');
+        firebaseConfig = await response.json();
+        firebase.initializeApp(firebaseConfig);
+        
+        // Initialize auth and database services
+        auth = firebase.auth();
+        database = firebase.database();
+        
+        console.log('Firebase initialized with secure config');
+        
+        // Setup auth state listener
+        auth.onAuthStateChanged(handleAuthStateChange);
+        
+    } catch (error) {
+        console.error('Failed to load Firebase config:', error);
+        // Show error message for missing configuration
+        showNotification('Configuration error. Please check your connection and try again.', 'error');
+        return;
+    }
+}
+
+// Initialize Firebase and auth services
+let auth, database;
 
 // Global state
 let currentUser = null;
@@ -804,8 +819,8 @@ window.ResumeSmartBuild = {
 };
 
 // Initialize all components when the DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeFirebase();
+document.addEventListener('DOMContentLoaded', async function() {
+    await initializeFirebase();
     setupEventListeners();
     setupScrollReveal();
     setupMobileNavigation();

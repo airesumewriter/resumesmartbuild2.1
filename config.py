@@ -20,13 +20,21 @@ class ResumeSmartBuildHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             
             config = {
-                'apiKey': os.getenv('VITE_FIREBASE_API_KEY', 'AIzaSyCpLscgzlbaIz6vwLZxrNg8s0IUpS-ls3s'),
+                'apiKey': os.getenv('VITE_FIREBASE_API_KEY'),
                 'authDomain': f"{os.getenv('VITE_FIREBASE_PROJECT_ID', 'resumesmartbuild')}.firebaseapp.com",
                 'projectId': os.getenv('VITE_FIREBASE_PROJECT_ID', 'resumesmartbuild'),
                 'storageBucket': f"{os.getenv('VITE_FIREBASE_PROJECT_ID', 'resumesmartbuild')}.appspot.com",
                 'messagingSenderId': '190620294122',
-                'appId': os.getenv('VITE_FIREBASE_APP_ID', '1:190620294122:web:9a93a5763ddcf3e1c63093')
+                'appId': os.getenv('VITE_FIREBASE_APP_ID')
             }
+            
+            # Check for required environment variables
+            if not config['apiKey']:
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'Firebase API key not configured'}).encode())
+                return
             
             self.wfile.write(json.dumps(config).encode())
         else:

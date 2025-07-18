@@ -57,7 +57,7 @@ Your task is to build a 100% complete, professional, AI-powered resume web app c
 
 Use this config:
 ```
-apiKey: "AIzaSyCpLscgzlbaIz6vwLZxrNg8s0IUpS-ls3s",
+apiKey: "your_firebase_api_key_here",
 authDomain: "resumesmartbuild.firebaseapp.com",
 projectId: "resumesmartbuild",
 storageBucket: "resumesmartbuild.appspot.com",

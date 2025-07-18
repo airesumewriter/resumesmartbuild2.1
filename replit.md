@@ -8,6 +8,18 @@ ResumeSmartBuild is an AI-powered resume building web application that helps use
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### Security Fix (July 18, 2025)
+- **Issue**: Firebase API key was hardcoded in client-side JavaScript files
+- **Resolution**: Implemented environment variable configuration system
+- **Changes**:
+  - Updated `scripts/script.js` to load Firebase config from `/api/config` endpoint
+  - Modified `config.py` to serve Firebase configuration from environment variables
+  - Added `.env.example` file with required environment variables
+  - Removed hardcoded API keys from all production files
+- **Impact**: Improved security posture and easier configuration management
+
 ## System Architecture
 
 ### Frontend Architecture
