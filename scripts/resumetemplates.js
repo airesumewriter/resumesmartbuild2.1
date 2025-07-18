@@ -231,41 +231,121 @@ function handleTemplatePreview(templateId) {
 function createPreviewModal(template) {
     const modal = document.createElement('div');
     modal.className = 'modal template-preview-modal';
-    modal.innerHTML = `
-        <div class="modal-content template-preview-content">
-            <span class="modal-close">&times;</span>
-            <div class="preview-header">
-                <h2>${template.name}</h2>
-                <span class="template-badge ${template.isPremium ? 'premium' : 'free'}">
-                    ${template.isPremium ? 'Premium' : 'Free'}
-                </span>
-            </div>
-            <div class="preview-body">
-                <div class="preview-image">
-                    <i class="${template.previewIcon}" style="font-size: 4rem; color: #6B7280;"></i>
-                    <p style="margin-top: 20px; color: #6B7280;">Template Preview</p>
-                    <p style="font-size: 0.875rem; color: #9CA3AF;">Full preview available after download</p>
-                </div>
-                <div class="preview-details">
-                    <h3>Template Features</h3>
-                    <ul class="features-list">
-                        ${template.features.map(feature => `<li><i class="fas fa-check"></i> ${feature}</li>`).join('')}
-                    </ul>
-                    <div class="preview-description">
-                        <h4>Description</h4>
-                        <p>${template.description}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="preview-actions">
-                <button class="btn-secondary" onclick="this.closest('.modal').remove()">Close</button>
-                <button class="btn-primary" onclick="handleTemplateDownload('${template.id}', ${template.isPremium})">
-                    <i class="fas fa-download"></i>
-                    ${template.isPremium ? '🔒 Download Premium' : 'Download Free'}
-                </button>
-            </div>
-        </div>
-    `;
+    
+    // Create modal structure using DOM methods (XSS-safe)
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content template-preview-content';
+    
+    // Close button
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'modal-close';
+    closeBtn.innerHTML = '&times;';
+    
+    // Header section
+    const previewHeader = document.createElement('div');
+    previewHeader.className = 'preview-header';
+    
+    const title = document.createElement('h2');
+    title.textContent = template.name; // XSS-safe text assignment
+    
+    const badge = document.createElement('span');
+    badge.className = `template-badge ${template.isPremium ? 'premium' : 'free'}`;
+    badge.textContent = template.isPremium ? 'Premium' : 'Free'; // XSS-safe text assignment
+    
+    previewHeader.appendChild(title);
+    previewHeader.appendChild(badge);
+    
+    // Body section
+    const previewBody = document.createElement('div');
+    previewBody.className = 'preview-body';
+    
+    // Preview image section
+    const previewImage = document.createElement('div');
+    previewImage.className = 'preview-image';
+    
+    const icon = document.createElement('i');
+    icon.className = template.previewIcon; // Note: FontAwesome class names are controlled, low XSS risk
+    icon.style.cssText = 'font-size: 4rem; color: #6B7280;';
+    
+    const previewText = document.createElement('p');
+    previewText.style.cssText = 'margin-top: 20px; color: #6B7280;';
+    previewText.textContent = 'Template Preview';
+    
+    const previewSubtext = document.createElement('p');
+    previewSubtext.style.cssText = 'font-size: 0.875rem; color: #9CA3AF;';
+    previewSubtext.textContent = 'Full preview available after download';
+    
+    previewImage.appendChild(icon);
+    previewImage.appendChild(previewText);
+    previewImage.appendChild(previewSubtext);
+    
+    // Details section
+    const previewDetails = document.createElement('div');
+    previewDetails.className = 'preview-details';
+    
+    const featuresTitle = document.createElement('h3');
+    featuresTitle.textContent = 'Template Features';
+    
+    const featuresList = document.createElement('ul');
+    featuresList.className = 'features-list';
+    
+    template.features.forEach(feature => {
+        const listItem = document.createElement('li');
+        const checkIcon = document.createElement('i');
+        checkIcon.className = 'fas fa-check';
+        listItem.appendChild(checkIcon);
+        listItem.appendChild(document.createTextNode(' ' + feature)); // XSS-safe text node
+        featuresList.appendChild(listItem);
+    });
+    
+    const descriptionDiv = document.createElement('div');
+    descriptionDiv.className = 'preview-description';
+    
+    const descTitle = document.createElement('h4');
+    descTitle.textContent = 'Description';
+    
+    const descText = document.createElement('p');
+    descText.textContent = template.description; // XSS-safe text assignment
+    
+    descriptionDiv.appendChild(descTitle);
+    descriptionDiv.appendChild(descText);
+    
+    previewDetails.appendChild(featuresTitle);
+    previewDetails.appendChild(featuresList);
+    previewDetails.appendChild(descriptionDiv);
+    
+    previewBody.appendChild(previewImage);
+    previewBody.appendChild(previewDetails);
+    
+    // Actions section
+    const previewActions = document.createElement('div');
+    previewActions.className = 'preview-actions';
+    
+    const closeButton = document.createElement('button');
+    closeButton.className = 'btn-secondary';
+    closeButton.textContent = 'Close';
+    closeButton.addEventListener('click', () => modal.remove());
+    
+    const downloadButton = document.createElement('button');
+    downloadButton.className = 'btn-primary';
+    downloadButton.addEventListener('click', () => handleTemplateDownload(template.id, template.isPremium));
+    
+    const downloadIcon = document.createElement('i');
+    downloadIcon.className = 'fas fa-download';
+    
+    downloadButton.appendChild(downloadIcon);
+    downloadButton.appendChild(document.createTextNode(' ' + (template.isPremium ? '🔒 Download Premium' : 'Download Free')));
+    
+    previewActions.appendChild(closeButton);
+    previewActions.appendChild(downloadButton);
+    
+    // Assemble modal
+    modalContent.appendChild(closeBtn);
+    modalContent.appendChild(previewHeader);
+    modalContent.appendChild(previewBody);
+    modalContent.appendChild(previewActions);
+    
+    modal.appendChild(modalContent);
 
     // Add modal styles
     modal.style.cssText = `
@@ -295,8 +375,7 @@ function createPreviewModal(template) {
         position: relative;
     `;
 
-    // Close modal functionality
-    const closeBtn = modal.querySelector('.modal-close');
+    // Close modal functionality (already configured above)
     closeBtn.addEventListener('click', () => {
         modal.remove();
     });
