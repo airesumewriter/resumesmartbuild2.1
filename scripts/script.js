@@ -164,13 +164,26 @@ function setupEventListeners() {
 
 // Mobile navigation
 function setupMobileNavigation() {
+    console.log('Setting up mobile navigation...');
+    console.log('navToggle element:', navToggle);
+    console.log('navMenu element:', navMenu);
+    
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', function() {
+        navToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Nav toggle clicked!');
+            
+            const isActive = navMenu.classList.contains('active');
+            console.log('Current active state:', isActive);
+            
             navMenu.classList.toggle('active');
-            console.log('Mobile menu toggled, active:', navMenu.classList.contains('active'));
+            console.log('New active state:', navMenu.classList.contains('active'));
+            console.log('Menu classes:', navMenu.className);
             
             // Animate hamburger
             const spans = navToggle.querySelectorAll('span');
+            console.log('Found spans:', spans.length);
+            
             spans.forEach((span, index) => {
                 if (navMenu.classList.contains('active')) {
                     if (index === 0) span.style.transform = 'rotate(45deg) translate(5px, 5px)';

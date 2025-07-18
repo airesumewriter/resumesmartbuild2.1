@@ -1653,7 +1653,7 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-menu {
-        display: none;
+        display: none !important;
         position: absolute;
         top: 100%;
         left: 0;
@@ -1674,6 +1674,7 @@ body {
     .nav-menu .nav-link {
         padding: 10px 0;
         border-bottom: 1px solid var(--border-color);
+        width: 100%;
     }
 
     .nav-menu .nav-link:last-of-type {
@@ -1683,10 +1684,11 @@ body {
     .nav-menu .btn-login {
         margin-top: 10px;
         align-self: flex-start;
+        width: auto;
     }
 
     .nav-toggle {
-        display: flex;
+        display: flex !important;
     }
 
     .hero-container {
