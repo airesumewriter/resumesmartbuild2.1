@@ -19,34 +19,48 @@ def send_promotional_email(subject, content, affiliate_products=None):
         'subject': subject
     }
     
-    # Call Node.js to send promotional emails
-    cmd = [
-        'node', '-e', f'''
-        const {{ sendPromotionalEmail }} = require('./newsletter.js');
-        
-        // In production, fetch subscribers from database
-        const subscribers = [
-            // Add actual subscriber emails here
-        ];
-        
-        const promoData = {json.dumps(promo_data)};
-        
-        subscribers.forEach(async (email) => {{
-            try {{
-                await sendPromotionalEmail(email, promoData);
-                console.log('Sent to:', email);
-            }} catch (error) {{
-                console.error('Failed to send to:', email, error);
-            }}
-        }});
-        '''
-    ]
+    # Write promo data to a temporary file to avoid command injection
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(promo_data, f)
+        temp_file = f.name
     
-    env = os.environ.copy()
-    env['SENDGRID_API_KEY'] = os.getenv('SENDGRID_API_KEY', '')
-    
-    result = subprocess.run(cmd, capture_output=True, text=True, env=env)
-    return result.returncode == 0
+    try:
+        # Call Node.js to send promotional emails with safe static command
+        cmd = [
+            'node', '-e', 
+            '''
+            const fs = require('fs');
+            const { sendPromotionalEmail } = require('./newsletter.js');
+            
+            // Read promo data from file
+            const promoData = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
+            
+            // In production, fetch subscribers from database
+            const subscribers = [
+                // Add actual subscriber emails here
+            ];
+            
+            subscribers.forEach(async (email) => {
+                try {
+                    await sendPromotionalEmail(email, promoData);
+                    console.log('Sent to:', email);
+                } catch (error) {
+                    console.error('Failed to send to:', email, error);
+                }
+            });
+            ''',
+            temp_file
+        ]
+        
+        env = os.environ.copy()
+        env['SENDGRID_API_KEY'] = os.getenv('SENDGRID_API_KEY', '')
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, env=env)
+        return result.returncode == 0
+    finally:
+        # Clean up temporary file
+        os.unlink(temp_file)
 
 def create_affiliate_promotion():
     """
