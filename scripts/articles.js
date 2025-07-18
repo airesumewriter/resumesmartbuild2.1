@@ -198,17 +198,26 @@ function createArticleCard(article) {
     articleMeta.className = 'article-meta';
 
     const timeSpan = document.createElement('span');
-    timeSpan.innerHTML = `<i class="fas fa-clock"></i> ${article.readTime}`;
+    const timeIcon = document.createElement('i');
+    timeIcon.className = 'fas fa-clock';
+    timeSpan.appendChild(timeIcon);
+    timeSpan.appendChild(document.createTextNode(` ${article.readTime}`));
 
     const dateSpan = document.createElement('span');
-    dateSpan.innerHTML = `<i class="fas fa-calendar"></i> ${formattedDate}`;
+    const dateIcon = document.createElement('i');
+    dateIcon.className = 'fas fa-calendar';
+    dateSpan.appendChild(dateIcon);
+    dateSpan.appendChild(document.createTextNode(` ${formattedDate}`));
 
     articleMeta.appendChild(timeSpan);
     articleMeta.appendChild(dateSpan);
 
     if (article.author) {
         const authorSpan = document.createElement('span');
-        authorSpan.innerHTML = `<i class="fas fa-user"></i> ${article.author}`;
+        const authorIcon = document.createElement('i');
+        authorIcon.className = 'fas fa-user';
+        authorSpan.appendChild(authorIcon);
+        authorSpan.appendChild(document.createTextNode(` ${article.author}`));
         articleMeta.appendChild(authorSpan);
     }
 
