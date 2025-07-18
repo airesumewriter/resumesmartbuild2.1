@@ -358,35 +358,65 @@ class PremiumATSScanner {
         modal.className = 'modal active';
         modal.id = 'optimization-modal';
         
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h2>Resume Optimization Suggestions</h2>
-                <div class="optimization-results">
-                    <h3>Recommended Improvements:</h3>
-                    <ul>
-                        ${optimizationData.suggestedChanges.map(change => 
-                            `<li>${change}</li>`
-                        ).join('')}
-                    </ul>
-                    
-                    <h3>Keywords to Add:</h3>
-                    <div class="keyword-tags">
-                        ${optimizationData.keywordsToAdd.map(keyword => 
-                            `<span class="keyword-tag">${keyword}</span>`
-                        ).join('')}
-                    </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button class="btn-primary" onclick="openResumeBuilder()">
-                        Optimize in Resume Builder
-                    </button>
-                    <button class="btn-secondary" onclick="closeModal(this.closest('.modal'))">
-                        Close
-                    </button>
-                </div>
-            </div>
-        `;
+        // Create modal content safely using DOM methods
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+        
+        const title = document.createElement('h2');
+        title.textContent = 'Resume Optimization Suggestions';
+        modalContent.appendChild(title);
+        
+        const resultsDiv = document.createElement('div');
+        resultsDiv.className = 'optimization-results';
+        
+        // Add recommendations section
+        const recommendationsTitle = document.createElement('h3');
+        recommendationsTitle.textContent = 'Recommended Improvements:';
+        resultsDiv.appendChild(recommendationsTitle);
+        
+        const recommendationsList = document.createElement('ul');
+        optimizationData.suggestedChanges.forEach(change => {
+            const listItem = document.createElement('li');
+            listItem.textContent = change;
+            recommendationsList.appendChild(listItem);
+        });
+        resultsDiv.appendChild(recommendationsList);
+        
+        // Add keywords section
+        const keywordsTitle = document.createElement('h3');
+        keywordsTitle.textContent = 'Keywords to Add:';
+        resultsDiv.appendChild(keywordsTitle);
+        
+        const keywordTags = document.createElement('div');
+        keywordTags.className = 'keyword-tags';
+        optimizationData.keywordsToAdd.forEach(keyword => {
+            const keywordSpan = document.createElement('span');
+            keywordSpan.className = 'keyword-tag';
+            keywordSpan.textContent = keyword;
+            keywordTags.appendChild(keywordSpan);
+        });
+        resultsDiv.appendChild(keywordTags);
+        
+        modalContent.appendChild(resultsDiv);
+        
+        // Add action buttons
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'modal-actions';
+        
+        const optimizeBtn = document.createElement('button');
+        optimizeBtn.className = 'btn-primary';
+        optimizeBtn.textContent = 'Optimize in Resume Builder';
+        optimizeBtn.onclick = () => openResumeBuilder();
+        actionsDiv.appendChild(optimizeBtn);
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'btn-secondary';
+        closeBtn.textContent = 'Close';
+        closeBtn.onclick = () => closeModal(modal);
+        actionsDiv.appendChild(closeBtn);
+        
+        modalContent.appendChild(actionsDiv);
+        modal.appendChild(modalContent);
 
         document.body.appendChild(modal);
     }
