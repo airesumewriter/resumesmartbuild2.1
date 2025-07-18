@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://resumesmartbuild.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Disallow private directories
+Disallow: /scripts/
+Disallow: /config/
+Disallow: /admin/
+Disallow: /.replit
+Disallow: /replit.md
+
+# Allow important resources
+Allow: /styles/
+Allow: /images/
+Allow: /articles/
+Allow: /templates/
+
+# Specific bot directives
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
