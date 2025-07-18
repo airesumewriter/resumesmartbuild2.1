@@ -572,33 +572,96 @@ class JobMatchingService {
         resultsModal.className = 'modal active';
         resultsModal.id = 'job-results-modal';
         
-        resultsModal.innerHTML = `
-            <div class="modal-content large">
-                <h2>Job Matches Found (${jobs.length})</h2>
-                <div class="job-results">
-                    ${jobs.map(job => `
-                        <div class="job-card" data-match="${job.match}">
-                            <div class="job-header">
-                                <h3>${job.title}</h3>
-                                <span class="match-score">${job.match}% match</span>
-                            </div>
-                            <div class="job-info">
-                                <p><strong>${job.company}</strong></p>
-                                <p>📍 ${job.location} ${job.distance ? `(${job.distance})` : ''}</p>
-                                <p>💰 ${job.salary}</p>
-                                <p class="job-type ${job.type.toLowerCase()}">${job.type}</p>
-                            </div>
-                            <div class="job-actions">
-                                <a href="${job.url}" target="_blank" class="btn-primary">Apply Now</a>
-                                <button class="btn-secondary" onclick="saveJob(${job.id})">Save Job</button>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                <button class="btn-secondary" onclick="closeModal(this.closest('.modal'))">Close</button>
-            </div>
-        `;
-
+        // Create modal content using secure DOM manipulation
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content large';
+        
+        // Create title
+        const title = document.createElement('h2');
+        title.textContent = `Job Matches Found (${jobs.length})`;
+        modalContent.appendChild(title);
+        
+        // Create job results container
+        const jobResultsDiv = document.createElement('div');
+        jobResultsDiv.className = 'job-results';
+        
+        // Create each job card securely
+        jobs.forEach(job => {
+            const jobCard = document.createElement('div');
+            jobCard.className = 'job-card';
+            jobCard.setAttribute('data-match', job.match);
+            
+            // Job header
+            const jobHeader = document.createElement('div');
+            jobHeader.className = 'job-header';
+            
+            const jobTitle = document.createElement('h3');
+            jobTitle.textContent = job.title;
+            jobHeader.appendChild(jobTitle);
+            
+            const matchScore = document.createElement('span');
+            matchScore.className = 'match-score';
+            matchScore.textContent = `${job.match}% match`;
+            jobHeader.appendChild(matchScore);
+            
+            jobCard.appendChild(jobHeader);
+            
+            // Job info
+            const jobInfo = document.createElement('div');
+            jobInfo.className = 'job-info';
+            
+            const companyP = document.createElement('p');
+            const companyStrong = document.createElement('strong');
+            companyStrong.textContent = job.company;
+            companyP.appendChild(companyStrong);
+            jobInfo.appendChild(companyP);
+            
+            const locationP = document.createElement('p');
+            locationP.textContent = `📍 ${job.location}${job.distance ? ` (${job.distance})` : ''}`;
+            jobInfo.appendChild(locationP);
+            
+            const salaryP = document.createElement('p');
+            salaryP.textContent = `💰 ${job.salary}`;
+            jobInfo.appendChild(salaryP);
+            
+            const typeP = document.createElement('p');
+            typeP.className = `job-type ${job.type.toLowerCase()}`;
+            typeP.textContent = job.type;
+            jobInfo.appendChild(typeP);
+            
+            jobCard.appendChild(jobInfo);
+            
+            // Job actions
+            const jobActions = document.createElement('div');
+            jobActions.className = 'job-actions';
+            
+            const applyLink = document.createElement('a');
+            applyLink.href = job.url;
+            applyLink.target = '_blank';
+            applyLink.className = 'btn-primary';
+            applyLink.textContent = 'Apply Now';
+            jobActions.appendChild(applyLink);
+            
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn-secondary';
+            saveBtn.textContent = 'Save Job';
+            saveBtn.onclick = () => saveJob(job.id);
+            jobActions.appendChild(saveBtn);
+            
+            jobCard.appendChild(jobActions);
+            jobResultsDiv.appendChild(jobCard);
+        });
+        
+        modalContent.appendChild(jobResultsDiv);
+        
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'btn-secondary';
+        closeBtn.textContent = 'Close';
+        closeBtn.onclick = () => closeModal(resultsModal);
+        modalContent.appendChild(closeBtn);
+        
+        resultsModal.appendChild(modalContent);
         document.body.appendChild(resultsModal);
     }
 }
