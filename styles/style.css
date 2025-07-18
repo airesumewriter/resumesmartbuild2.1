@@ -1653,7 +1653,7 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-menu {
-        display: none !important;
+        display: none;
         position: absolute;
         top: 100%;
         left: 0;
@@ -1661,10 +1661,11 @@ body {
         background: white;
         flex-direction: column;
         padding: 20px;
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         border-top: 1px solid var(--border-color);
         z-index: 999;
         gap: 15px;
+        width: 100%;
     }
 
     .nav-menu.active {
