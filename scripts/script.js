@@ -803,4 +803,19 @@ window.ResumeSmartBuild = {
     currentUser: () => currentUser
 };
 
+// Initialize all components when the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFirebase();
+    setupEventListeners();
+    setupScrollReveal();
+    setupMobileNavigation();
+    
+    // Initialize autocomplete functionality
+    if (typeof initializeAutocomplete === 'function') {
+        initializeAutocomplete();
+    }
+    
+    console.log('ResumeSmartBuild v1.0 - Initializing...');
+});
+
 console.log('ResumeSmartBuild v1.0 - Script loaded successfully');
