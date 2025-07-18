@@ -10,7 +10,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### Security Fix (July 18, 2025)
+### PayPal Security Fix (July 18, 2025)
+- **Issue**: PayPal Client ID was hardcoded in premium_subscription.js (line 6)
+- **Vulnerability**: Static code analysis detected exposed API credentials
+- **Resolution**: Implemented secure configuration endpoint pattern
+- **Changes**:
+  - Removed hardcoded PayPal Client ID from `premium_subscription.js`
+  - Created secure config endpoint `/api/config` that serves public API keys
+  - Updated `PremiumSubscriptionManager` to fetch PayPal config securely
+  - Implemented `secure_server.py` to handle both static files and config API
+  - Added fallback mechanism with environment variable support
+- **Impact**: Eliminated credential exposure risk and improved security architecture
+
+### Previous Firebase Security Fix (July 18, 2025)
 - **Issue**: Firebase API key was hardcoded in client-side JavaScript files
 - **Resolution**: Implemented environment variable configuration system
 - **Changes**:

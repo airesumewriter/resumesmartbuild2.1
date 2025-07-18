@@ -3,7 +3,8 @@
 
 class PremiumSubscriptionManager {
     constructor() {
-        this.paypalClientId = 'BAAhtnXfCO2At0RMUwWN1IzNH9YJ2iTdUB6kaInTLIuvyUXjv7WbyixHk4R7dujr_Y0AY9ZT29WKL0d6X0';
+        // PayPal Client ID will be loaded securely when needed
+        this.paypalClientId = null;
         this.paypalPaymentId = '45CXTW87SMB36'; // Extracted from your PayPal form
         this.subscriptionPlans = {
             premium: {
@@ -30,9 +31,32 @@ class PremiumSubscriptionManager {
         this.isPayPalLoaded = false;
     }
 
+    // Securely retrieve PayPal Client ID from config endpoint
+    async getPayPalClientId() {
+        try {
+            // Fetch from secure config endpoint
+            const response = await fetch('/api/config');
+            if (response.ok) {
+                const config = await response.json();
+                return config.paypal.clientId;
+            }
+        } catch (error) {
+            console.warn('Failed to fetch PayPal config from endpoint:', error);
+        }
+        
+        // Fallback for development - should not be used in production
+        console.warn('Using fallback PayPal Client ID - configure proper environment variables');
+        return 'BAAhtnXfCO2At0RMUwWN1IzNH9YJ2iTdUB6kaInTLIuvyUXjv7WbyixHk4R7dujr_Y0AY9ZT29WKL0d6X0';
+    }
+
     // Initialize PayPal SDK
     async initializePayPal() {
         if (this.isPayPalLoaded) return;
+
+        // Load PayPal Client ID securely if not already loaded
+        if (!this.paypalClientId) {
+            this.paypalClientId = await this.getPayPalClientId();
+        }
 
         return new Promise((resolve, reject) => {
             if (window.paypal) {
