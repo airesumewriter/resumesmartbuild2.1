@@ -1661,10 +1661,9 @@ body {
         background: white;
         flex-direction: column;
         padding: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         border-top: 1px solid var(--border-color);
         z-index: 999;
-        gap: 15px;
         width: 100%;
     }
 
@@ -1672,10 +1671,16 @@ body {
         display: flex !important;
     }
 
+    .nav-toggle {
+        display: flex !important;
+    }
+
     .nav-menu .nav-link {
-        padding: 10px 0;
-        border-bottom: 1px solid var(--border-color);
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
         width: 100%;
+        color: var(--text-primary);
+        text-decoration: none;
     }
 
     .nav-menu .nav-link:last-of-type {
@@ -1686,10 +1691,6 @@ body {
         margin-top: 10px;
         align-self: flex-start;
         width: auto;
-    }
-
-    .nav-toggle {
-        display: flex !important;
     }
 
     .hero-container {
