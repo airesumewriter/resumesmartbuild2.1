@@ -167,6 +167,7 @@ function setupMobileNavigation() {
     if (navToggle && navMenu) {
         navToggle.addEventListener('click', function() {
             navMenu.classList.toggle('active');
+            console.log('Mobile menu toggled, active:', navMenu.classList.contains('active'));
             
             // Animate hamburger
             const spans = navToggle.querySelectorAll('span');

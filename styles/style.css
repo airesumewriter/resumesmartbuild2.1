@@ -1663,10 +1663,26 @@ body {
         padding: 20px;
         box-shadow: var(--shadow-lg);
         border-top: 1px solid var(--border-color);
+        z-index: 999;
+        gap: 15px;
     }
 
     .nav-menu.active {
-        display: flex;
+        display: flex !important;
+    }
+
+    .nav-menu .nav-link {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-menu .nav-link:last-of-type {
+        border-bottom: none;
+    }
+
+    .nav-menu .btn-login {
+        margin-top: 10px;
+        align-self: flex-start;
     }
 
     .nav-toggle {
