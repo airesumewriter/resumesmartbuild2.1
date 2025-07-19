@@ -124,24 +124,70 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(config).encode('utf-8'))
     
     def serve_static_file(self):
-        """Serve static files with explicit health check handling and proper 200 response for root"""
-        # Remove query parameters
+        """Serve static files with deployment-optimized root endpoint and health check compatibility"""
+        # Remove query parameters for clean path handling
         path = self.path.split('?')[0]
         
-        # Explicit root path handling to ensure 200 status
-        if path == '/':
-            path = '/index.html'
-        
-        # Remove leading slash for file system
-        file_path = path.lstrip('/')
-        
         try:
-            # Check if file exists
+            # CRITICAL: Explicit root path handling for deployment health checks
+            # Must return 200 status for deployment to succeed
+            if path == '/':
+                path = '/index.html'
+                
+                # Ensure index.html exists and is accessible
+                if os.path.isfile('index.html'):
+                    with open('index.html', 'rb') as f:
+                        content = f.read()
+                    
+                    # Return 200 with proper headers for deployment health check
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'text/html; charset=utf-8')
+                    self.send_header('Content-Length', str(len(content)))
+                    self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                    self.send_header('X-Content-Type-Options', 'nosniff')
+                    self.end_headers()
+                    self.wfile.write(content)
+                    return
+                else:
+                    # Fallback HTML if index.html doesn't exist - MUST return 200
+                    fallback_html = b'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeSmartBuild - AI-Powered Resume Builder</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; text-align: center; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { color: #2c3e50; }
+        p { color: #34495e; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ResumeSmartBuild</h1>
+        <p>AI-Powered Resume Builder - Application is starting...</p>
+        <p>Professional ATS-Optimized Resumes</p>
+    </div>
+</body>
+</html>'''
+                    # MUST return 200 for deployment health check
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'text/html; charset=utf-8')
+                    self.send_header('Content-Length', str(len(fallback_html)))
+                    self.send_header('Cache-Control', 'no-cache')
+                    self.end_headers()
+                    self.wfile.write(fallback_html)
+                    return
+            
+            # Handle other static files
+            file_path = path.lstrip('/')
+            
             if os.path.isfile(file_path):
-                # Get MIME type
+                # Get MIME type for proper content serving
                 content_type, _ = mimetypes.guess_type(file_path)
                 if content_type is None:
-                    content_type = 'text/plain'
+                    content_type = 'application/octet-stream'
                 
                 # Read and serve file
                 with open(file_path, 'rb') as f:
@@ -152,60 +198,61 @@ class MainHTTPHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-Type', content_type)
                 self.send_header('Content-Length', str(len(content)))
                 
-                # Add cache headers for static assets
-                if file_path.endswith(('.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.ico')):
+                # Optimize cache headers for different file types
+                if file_path.endswith(('.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2')):
                     self.send_header('Cache-Control', 'public, max-age=3600')
+                    self.send_header('X-Content-Type-Options', 'nosniff')
                 else:
                     # For HTML files, prevent caching to ensure updates are seen
                     self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                    self.send_header('Pragma', 'no-cache')
+                    self.send_header('Expires', '0')
                 
                 self.end_headers()
                 self.wfile.write(content)
                 return
-                
-            # If index.html doesn't exist but root is requested, create basic HTML response
-            elif path == '/index.html' and not os.path.isfile('index.html'):
-                basic_html = b'''<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeSmartBuild</title>
-</head>
-<body>
-    <h1>ResumeSmartBuild</h1>
-    <p>AI-Powered Resume Builder</p>
-</body>
-</html>'''
-                self.send_response(200)
-                self.send_header('Content-Type', 'text/html')
-                self.send_header('Content-Length', str(len(basic_html)))
-                self.send_header('Cache-Control', 'no-cache')
-                self.end_headers()
-                self.wfile.write(basic_html)
-                return
             
-            # File not found - serve 404.html if it exists, otherwise plain 404
+            # File not found - serve custom 404 if available
             if os.path.isfile('404.html') and path != '/404.html':
                 with open('404.html', 'rb') as f:
                     content = f.read()
                 self.send_response(404)
-                self.send_header('Content-Type', 'text/html')
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
                 self.send_header('Content-Length', str(len(content)))
                 self.end_headers()
                 self.wfile.write(content)
             else:
+                # Default 404 response
+                error_html = b'''<!DOCTYPE html>
+<html><head><title>404 - Not Found</title></head>
+<body><h1>404 - File Not Found</h1></body></html>'''
                 self.send_response(404)
-                self.send_header('Content-Type', 'text/html')
+                self.send_header('Content-Type', 'text/html; charset=utf-8')
+                self.send_header('Content-Length', str(len(error_html)))
                 self.end_headers()
-                self.wfile.write(b'<h1>404 - File Not Found</h1>')
+                self.wfile.write(error_html)
                 
-        except Exception as e:
-            # Server error
-            self.send_response(500)
-            self.send_header('Content-Type', 'text/html')
+        except PermissionError as e:
+            # Permission error - return 403
+            error_html = b'''<!DOCTYPE html>
+<html><head><title>403 - Forbidden</title></head>
+<body><h1>403 - Access Forbidden</h1></body></html>'''
+            self.send_response(403)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(error_html)))
             self.end_headers()
-            self.wfile.write(f'<h1>500 - Server Error</h1><p>{str(e)}</p>'.encode('utf-8'))
+            self.wfile.write(error_html)
+        except Exception as e:
+            # Server error - log and return 500
+            print(f"Server error serving {path}: {e}")
+            error_html = f'''<!DOCTYPE html>
+<html><head><title>500 - Server Error</title></head>
+<body><h1>500 - Internal Server Error</h1><p>An error occurred while processing your request.</p></body></html>'''.encode('utf-8')
+            self.send_response(500)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(error_html)))
+            self.end_headers()
+            self.wfile.write(error_html)
     
     def get_access_token(self):
         """Get PayPal access token"""
