@@ -5,7 +5,7 @@ class ResumeSmartBuildHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split('?')[0]
 
-        # Health check endpoint
+        # Health check
         if path == "/health":
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
@@ -17,7 +17,7 @@ class ResumeSmartBuildHandler(SimpleHTTPRequestHandler):
         if path == "/":
             path = "/index.html"
 
-        # If index.html is missing, serve fallback HTML
+        # Serve fallback HTML if index.html missing
         if path == "/index.html" and not os.path.isfile("index.html"):
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
@@ -27,23 +27,9 @@ class ResumeSmartBuildHandler(SimpleHTTPRequestHandler):
 
         self.path = path
         return super().do_GET()
-    
-    def do_HEAD(self):
-        """Handle HEAD requests for health checks"""
-        path = self.path.split('?')[0]
-        
-        # Health check endpoint - critical for deployment
-        if path == "/health":
-            self.send_response(200)
-            self.send_header("Content-Type", "text/plain")
-            self.end_headers()
-            return
-            
-        # Handle other HEAD requests normally
-        return super().do_HEAD()
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    server = HTTPServer(('0.0.0.0', port), ResumeSmartBuildHandler)
-    print(f"Server running on port {port}...")
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    server = HTTPServer(("0.0.0.0", port), ResumeSmartBuildHandler)
+    print(f"✅ Server running on http://localhost:{port}")
     server.serve_forever()
