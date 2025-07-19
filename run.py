@@ -27,6 +27,20 @@ class ResumeSmartBuildHandler(SimpleHTTPRequestHandler):
 
         self.path = path
         return super().do_GET()
+    
+    def do_HEAD(self):
+        """Handle HEAD requests for health checks"""
+        path = self.path.split('?')[0]
+        
+        # Health check endpoint - critical for deployment
+        if path == "/health":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            return
+            
+        # Handle other HEAD requests normally
+        return super().do_HEAD()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
