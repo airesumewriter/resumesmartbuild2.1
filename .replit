@@ -21,7 +21,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python run.py"
+args = "node minimal_server.js"
 waitForPort = 5000
 
 [[ports]]

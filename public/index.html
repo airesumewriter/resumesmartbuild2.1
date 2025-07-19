@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeSmartBuild - AI-Powered Resume Builder | Professional ATS-Optimized Resumes</title>
+    <meta name="description" content="Create professional, ATS-optimized resumes with our AI-powered tools. Free resume builder, ATS scanner, job matcher, and premium templates. Land your dream job today.">
+    <meta name="keywords" content="resume builder, ATS resume scanner, cover letter generator, job matcher, professional resume templates, AI resume tools, career optimization">
+    <meta name="author" content="ResumeSmartBuild">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://resumesmartbuild.com/">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="ResumeSmartBuild - AI-Powered Resume Builder">
+    <meta property="og:description" content="Create professional, ATS-optimized resumes with our AI-powered tools. Free resume builder, ATS scanner, and premium templates.">
+    <meta property="og:url" content="https://resumesmartbuild.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://resumesmartbuild.com/images/og-image.jpg">
+    <meta property="og:site_name" content="ResumeSmartBuild">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ResumeSmartBuild - AI-Powered Resume Builder">
+    <meta name="twitter:description" content="Create professional, ATS-optimized resumes with our AI-powered tools.">
+    <meta name="twitter:image" content="https://resumesmartbuild.com/images/twitter-card.jpg">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/styles/style.css?v=2024-01-18">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <style>
+        /* Newsletter form styling */
+        .newsletter-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 0;
+            color: white;
+            text-align: center;
+        }
+        
+        .newsletter-form {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .newsletter-form input[type="email"] {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .newsletter-form button {
+            padding: 15px 30px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .newsletter-form button:hover {
+            background: #ff5252;
+        }
+        
+        .newsletter-form button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .newsletter-message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        .newsletter-message.success {
+            color: #4caf50;
+        }
+        
+        .newsletter-message.error {
+            color: #f44336;
+        }
+        
+        /* AI Assistant placeholder styling */
+        #kenji-ai-assistant {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        #kenji-ai-assistant:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+        }
+        
+        #kenji-ai-assistant.active {
+            background: #4caf50;
+        }
+        
+        .ai-status {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .ai-status.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Load security script -->
+    <script src="/security.js"></script>
+    
+    <!-- Load autocomplete functionality -->
+    <script src="/scripts/autocomplete.js"></script>
+    
+    <!-- Load resume templates -->
+    <script src="/scripts/resumetemplates.js"></script>
+    
+    <!-- Load articles -->
+    <script src="/scripts/articles.js"></script>
+    
+    <!-- Load main script -->
+    <script src="/scripts/script.js"></script>
+    
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container">
+            <h2>Stay Updated with Resume Tips & AI Tools</h2>
+            <p>Get the latest resume strategies, ATS optimization tips, and AI-powered career advice delivered to your inbox.</p>
+            
+            <form class="newsletter-form" id="newsletterForm">
+                <input 
+                    type="email" 
+                    id="newsletterEmail" 
+                    placeholder="Enter your email address" 
+                    required
+                >
+                <button type="submit" id="newsletterSubmit">
+                    Subscribe Free
+                </button>
+            </form>
+            
+            <div id="newsletterMessage" class="newsletter-message" style="display: none;"></div>
+        </div>
+    </section>
+    
+    <!-- AI Assistant Status -->
+    <div id="ai-status" class="ai-status">
+        AI Assistant: Coming Soon
+    </div>
+    
+    <!-- AI Assistant Placeholder -->
+    <div id="kenji-ai-assistant" title="AI Assistant (Coming Soon)">
+        <i class="fas fa-robot"></i>
+    </div>
+    
+    <script>
+        // Newsletter form functionality
+        document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('newsletterEmail').value;
+            const submitBtn = document.getElementById('newsletterSubmit');
+            const messageEl = document.getElementById('newsletterMessage');
+            
+            if (!email) {
+                showMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Subscribing...';
+            
+            try {
+                const response = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    document.getElementById('newsletterEmail').value = '';
+                } else {
+                    showMessage(data.message || 'Failed to subscribe. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Newsletter signup error:', error);
+                showMessage('Network error. Please check your connection and try again.', 'error');
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Subscribe Free';
+            }
+        });
+        
+        function showMessage(message, type) {
+            const messageEl = document.getElementById('newsletterMessage');
+            messageEl.textContent = message;
+            messageEl.className = `newsletter-message ${type}`;
+            messageEl.style.display = 'block';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        // AI Assistant placeholder functionality
+        document.getElementById('kenji-ai-assistant').addEventListener('click', () => {
+            const statusEl = document.getElementById('ai-status');
+            statusEl.classList.add('show');
+            
+            setTimeout(() => {
+                statusEl.classList.remove('show');
+            }, 2000);
+        });
+        
+        // Test API endpoints on page load
+        window.addEventListener('load', async () => {
+            console.log('🚀 ResumeSmartBuild v1.0 - Initializing...');
+            
+            // Test health endpoint
+            try {
+                const healthResponse = await fetch('/health');
+                if (healthResponse.ok) {
+                    console.log('✅ Health check: Server is running');
+                }
+            } catch (error) {
+                console.error('❌ Health check failed:', error);
+            }
+            
+            // Test config endpoint
+            try {
+                const configResponse = await fetch('/api/config');
+                if (configResponse.ok) {
+                    const config = await configResponse.json();
+                    console.log('✅ Configuration loaded:', config.app.name);
+                }
+            } catch (error) {
+                console.error('❌ Config load failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>
