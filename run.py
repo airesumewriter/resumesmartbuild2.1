@@ -1,66 +1,35 @@
-#!/usr/bin/env python3
-"""
-Production-ready run script for Replit deployment
-Configures the main server with proper error handling and health checks
-"""
-
 import os
-import sys
-import signal
-import logging
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-# Configure logging for deployment
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+class ResumeSmartBuildHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        path = self.path.split('?')[0]
 
-# Add current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        # Health check endpoint
+        if path == "/health":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"OK")
+            return
 
-# Import server components
-from main_server import HTTPServer, MainHTTPHandler
+        # Serve index.html at root
+        if path == "/":
+            path = "/index.html"
 
-def signal_handler(signum, frame):
-    """Handle shutdown signals gracefully"""
-    logger.info(f'Received signal {signum}, shutting down gracefully...')
-    sys.exit(0)
+        # If index.html is missing, serve fallback HTML
+        if path == "/index.html" and not os.path.isfile("index.html"):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(b"<html><body><h1>ResumeSmartBuild</h1></body></html>")
+            return
+
+        self.path = path
+        return super().do_GET()
 
 if __name__ == '__main__':
-    # Register signal handlers for graceful shutdown
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-    
-    # Use PORT environment variable for cloud deployment compatibility
-    port = int(os.getenv('PORT', 5000))
-    host = '0.0.0.0'  # Bind to all interfaces for deployment
-    
-    try:
-        # Create and configure server
-        server = HTTPServer((host, port), MainHTTPHandler)
-        
-        # Log startup information
-        logger.info(f'ResumeSmartBuild server starting on {host}:{port}')
-        logger.info('Available endpoints:')
-        logger.info('  GET  / - Static file serving')
-        logger.info('  GET  /health - Health check for deployment')
-        logger.info('  GET  /api/config - Secure configuration')
-        logger.info('  All PayPal API endpoints available')
-        
-        # Start server
-        server.serve_forever()
-        
-    except OSError as e:
-        if e.errno == 98:  # Address already in use
-            logger.error(f'Port {port} is already in use. Try using a different port.')
-        else:
-            logger.error(f'Failed to start server: {e}')
-        sys.exit(1)
-    except KeyboardInterrupt:
-        logger.info('Received keyboard interrupt, shutting down...')
-    except Exception as e:
-        logger.error(f'Unexpected server error: {e}')
-        raise
-    finally:
-        logger.info('Server shutdown complete')
+    port = int(os.environ.get('PORT', 5000))
+    server = HTTPServer(('0.0.0.0', port), ResumeSmartBuildHandler)
+    print(f"Server running on port {port}...")
+    server.serve_forever()
