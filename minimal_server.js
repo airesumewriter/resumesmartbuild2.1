@@ -93,7 +93,11 @@ async function handleNewsletter(req, res) {
 
             const msg = {
                 to: email,
-                from: 'info@resumesmartbuild.com',
+                from: {
+                    email: 'info@resumesmartbuild.com',
+                    name: 'ResumeSmartBuild'
+                },
+                replyTo: 'info@resumesmartbuild.com',
                 subject: '🚀 Welcome to ResumeSmartBuild!',
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -118,6 +122,22 @@ async function handleNewsletter(req, res) {
                         <p>Best regards,<br>The ResumeSmartBuild Team</p>
                     </div>
                 `,
+                text: `Welcome to ResumeSmartBuild!
+
+Hi ${name || 'there'},
+
+Thanks for signing up! We're excited to help you build smarter resumes with AI-powered tools.
+
+What's Next?
+- Try our ATS Resume Scanner
+- Browse premium resume templates  
+- Use AI-powered job matching
+- Access resume optimization tools
+
+Get started at: https://resumesmartbuild.com
+
+Best regards,
+The ResumeSmartBuild Team`
             };
 
             await sgMail.send(msg);
