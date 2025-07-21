@@ -38,3 +38,4 @@ externalPort = 8081
 
 [deployment]
 deploymentTarget = "cloudrun"
+run = ["sh", "-c", "run = \"node server.js\""]
