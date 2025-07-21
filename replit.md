@@ -31,7 +31,7 @@ Preferred communication style: Simple, everyday language.
 - **Resolution**: Removed hardcoded fallback to rely solely on environment variables
 - **Changes**:
   - Updated Firebase config in `/api/config` endpoint to use only `process.env.VITE_FIREBASE_API_KEY`
-  - Eliminated hardcoded fallback `'AIzaSyCpLscgzlbaIz6vwLZxrNg8s0IUpS-ls3s'`
+  - Eliminated hardcoded fallback (credential removed for security)
   - Verified proper environment variable configuration (VITE_FIREBASE_API_KEY exists in secrets)
 - **Impact**: Enhanced security posture by removing any hardcoded credentials from source code
 - **Status**: ✅ Fixed - Firebase API key now properly secured via environment variables
