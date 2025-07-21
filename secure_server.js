@@ -110,7 +110,7 @@ app.get('/api/config', (req, res) => {
       environment: process.env.PAYPAL_ENVIRONMENT || 'sandbox'
     },
     firebase: {
-      apiKey: process.env.VITE_FIREBASE_API_KEY || 'AIzaSyCpLscgzlbaIz6vwLZxrNg8s0IUpS-ls3s',
+      apiKey: process.env.VITE_FIREBASE_API_KEY,
       authDomain: `${process.env.VITE_FIREBASE_PROJECT_ID || 'resumesmartbuild'}.firebaseapp.com`,
       projectId: process.env.VITE_FIREBASE_PROJECT_ID || 'resumesmartbuild',
       storageBucket: `${process.env.VITE_FIREBASE_PROJECT_ID || 'resumesmartbuild'}.appspot.com`,
