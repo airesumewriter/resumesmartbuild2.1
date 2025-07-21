@@ -202,13 +202,21 @@ const server = http.createServer((req, res) => {
 
     // Config API
     if (pathname === '/api/config' && method === 'GET') {
+        // Validate required environment variables
+        if (!process.env.PAYPAL_CLIENT_ID) {
+            return sendJSON(res, 500, { error: 'PAYPAL_CLIENT_ID environment variable not set' });
+        }
+        if (!process.env.VITE_FIREBASE_API_KEY) {
+            return sendJSON(res, 500, { error: 'VITE_FIREBASE_API_KEY environment variable not set' });
+        }
+
         return sendJSON(res, 200, {
             paypal: {
-                clientId: process.env.PAYPAL_CLIENT_ID || 'BAAhtnXfCO2At0RMUwWN1IzNH9YJ2iTdUB6kaInTLIuvyUXjv7WbyixHk4R7dujr_Y0AY9ZT29WKL0d6X0',
+                clientId: process.env.PAYPAL_CLIENT_ID,
                 environment: process.env.PAYPAL_ENVIRONMENT || 'sandbox'
             },
             firebase: {
-                apiKey: process.env.VITE_FIREBASE_API_KEY || 'AIzaSyCpLscgzlbaIz6vwLZxrNg8s0IUpS-ls3s',
+                apiKey: process.env.VITE_FIREBASE_API_KEY,
                 authDomain: 'resumesmartbuild.firebaseapp.com',
                 projectId: 'resumesmartbuild',
                 storageBucket: 'resumesmartbuild.appspot.com',
