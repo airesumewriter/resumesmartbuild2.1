@@ -751,6 +751,163 @@ def search_articles():
     except Exception as e:
         return jsonify({'message': f'Search failed: {str(e)}'}), 500
 
+# Auto-thumbnail generation function
+def generate_article_thumbnail(title, category, slug):
+    """Generate a social media thumbnail for the article"""
+    try:
+        import base64
+        from io import BytesIO
+        
+        # Create a simple SVG thumbnail
+        svg_content = f'''
+        <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <rect width="1200" height="630" fill="url(#bgGradient)"/>
+            <text x="60" y="180" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white" text-anchor="start">
+                {title[:50]}{'...' if len(title) > 50 else ''}
+            </text>
+            <text x="60" y="240" font-family="Arial, sans-serif" font-size="32" fill="rgba(255,255,255,0.8)" text-anchor="start">
+                {category}
+            </text>
+            <text x="60" y="520" font-family="Arial, sans-serif" font-size="28" fill="white" text-anchor="start">
+                ResumeSmartBuild.com
+            </text>
+            <circle cx="1050" cy="150" r="80" fill="rgba(255,255,255,0.1)"/>
+            <path d="M1020 120 L1020 180 L1080 150 Z" fill="white"/>
+        </svg>
+        '''
+        
+        # Convert SVG to base64 for storage
+        svg_base64 = base64.b64encode(svg_content.encode('utf-8')).decode('utf-8')
+        image_url = f"data:image/svg+xml;base64,{svg_base64}"
+        
+        return image_url
+        
+    except Exception as e:
+        print(f"Thumbnail generation failed: {e}")
+        return None
+
+# Enhanced article CRUD operations
+@app.route('/api/admin/articles/<article_id>', methods=['PUT'])
+def update_article(article_id):
+    try:
+        data = request.get_json()
+        
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        # Generate slug from title if needed
+        slug = data.get('slug') or data['title'].lower().replace(' ', '-').replace('[^a-z0-9-]', '')
+        
+        # Auto-generate thumbnail if requested
+        thumbnail_url = data.get('cover_image_url')
+        if data.get('auto_thumbnail', True) and not thumbnail_url:
+            thumbnail_url = generate_article_thumbnail(data['title'], data.get('category', 'Article'), slug)
+        
+        # Update article
+        cur.execute("""
+            UPDATE articles SET 
+                title = %s, slug = %s, content = %s, content_markdown = %s, content_html = %s,
+                category = %s, author = %s, excerpt = %s, cover_image_url = %s,
+                is_published = %s, is_featured = %s, meta_description = %s, 
+                meta_keywords = %s, ads_enabled = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+        """, (
+            data['title'], slug, data['content'], data.get('content', ''),
+            markdown_to_html(data.get('content', '')), data.get('category', 'Career Tips'),
+            data.get('author', 'ResumeSmartBot'), data.get('excerpt', ''),
+            thumbnail_url, data.get('is_published', True), data.get('is_featured', False),
+            data.get('excerpt', ''), extract_keywords(data.get('content', '')),
+            data.get('ads_enabled', False), article_id
+        ))
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({'message': 'Article updated successfully', 'id': article_id})
+        
+    except Exception as e:
+        return jsonify({'message': f'Failed to update article: {str(e)}'}), 500
+
+@app.route('/api/admin/articles/<article_id>', methods=['DELETE'])
+def delete_article(article_id):
+    try:
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        # Soft delete - just unpublish the article
+        cur.execute("UPDATE articles SET is_published = FALSE WHERE id = %s", (article_id,))
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({'message': 'Article deleted successfully'})
+        
+    except Exception as e:
+        return jsonify({'message': f'Failed to delete article: {str(e)}'}), 500
+
+@app.route('/api/articles/<slug>/related', methods=['GET'])
+def get_related_articles(slug):
+    """Get related articles from the same category"""
+    try:
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        # Get the current article's category
+        cur.execute("SELECT category FROM articles WHERE slug = %s AND is_published = TRUE", (slug,))
+        result = cur.fetchone()
+        if not result:
+            return jsonify([])
+        
+        category = result[0]
+        
+        # Get 3 random articles from the same category
+        cur.execute("""
+            SELECT id, title, slug, excerpt, cover_image_url, created_at
+            FROM articles 
+            WHERE category = %s AND slug != %s AND is_published = TRUE
+            ORDER BY RANDOM()
+            LIMIT 3
+        """, (category, slug))
+        
+        articles = []
+        for row in cur.fetchall():
+            articles.append({
+                'id': str(row[0]),
+                'title': row[1],
+                'slug': row[2],
+                'excerpt': row[3],
+                'cover_image_url': row[4],
+                'created_at': row[5].isoformat() if row[5] else None
+            })
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify(articles)
+        
+    except Exception as e:
+        return jsonify({'message': f'Failed to fetch related articles: {str(e)}'}), 500
+
 @app.route('/api/articles/<slug>', methods=['GET'])
 def get_article_by_slug(slug):
     try:

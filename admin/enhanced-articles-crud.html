@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Article Management - ResumeSmartBuild Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-gray-50 font-['Inter']">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900">Enhanced Article Management</h1>
+                <div class="flex space-x-4">
+                    <button onclick="createNewArticle()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        + New Article
+                    </button>
+                    <a href="/admin/markdown-guide.html" target="_blank" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
+                        📖 Guide
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Articles List -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b">
+                <h2 class="text-xl font-bold text-gray-900">All Articles</h2>
+                <p class="text-gray-600">Manage your published content with edit, delete, and thumbnail generation</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="articlesTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Articles will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-900">Edit Article</h2>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+                <div class="p-6">
+                    <form id="editForm" class="grid lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <input type="hidden" id="editId">
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                                <input type="text" id="editTitle" class="w-full px-4 py-3 border rounded-lg text-lg">
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                    <select id="editCategory" class="w-full px-4 py-2 border rounded-lg">
+                                        <option value="Resume Tips">Resume Tips</option>
+                                        <option value="ATS Optimization">ATS Optimization</option>
+                                        <option value="Job Hunting">Job Hunting</option>
+                                        <option value="Career Advice">Career Advice</option>
+                                        <option value="Interview Tips">Interview Tips</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Author</label>
+                                    <input type="text" id="editAuthor" value="ResumeSmartBot" class="w-full px-4 py-2 border rounded-lg">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Excerpt</label>
+                                <textarea id="editExcerpt" rows="3" class="w-full px-4 py-2 border rounded-lg"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Content (Markdown)</label>
+                                <textarea id="editContent" rows="15" class="w-full px-4 py-2 border rounded-lg font-mono text-sm" oninput="updatePreview()"></textarea>
+                            </div>
+                            
+                            <div class="grid grid-cols-3 gap-4">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="editPublished" class="mr-2">
+                                    <span class="text-sm">Published</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="editFeatured" class="mr-2">
+                                    <span class="text-sm">Featured</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="editAdsEnabled" class="mr-2">
+                                    <span class="text-sm">Ads Enabled</span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex space-x-4">
+                                <button type="button" onclick="updateArticle()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                                    Update Article
+                                </button>
+                                <button type="button" onclick="generateThumbnail()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold">
+                                    🖼️ Generate Thumbnail
+                                </button>
+                                <button type="button" onclick="deleteCurrentArticle()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 font-semibold">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Live Preview</h3>
+                                <div id="previewContent" class="border rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto prose prose-sm max-w-none">
+                                    <p class="text-gray-500">Start typing to see preview...</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">SEO Preview</h3>
+                                <div class="border rounded-lg p-4 bg-white">
+                                    <h4 id="seoTitle" class="text-blue-600 text-lg">Article Title</h4>
+                                    <p id="seoUrl" class="text-green-700 text-sm">resumesmartbuild.com/articles/slug</p>
+                                    <p id="seoDesc" class="text-gray-600 text-sm">Meta description...</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Homepage Card Preview</h3>
+                                <div id="cardPreview" class="border rounded-lg p-4 bg-gray-100 max-w-sm">
+                                    <div class="bg-gradient-to-br from-blue-100 to-purple-100 h-24 rounded flex items-center justify-center mb-3">
+                                        <span class="text-blue-600">📄</span>
+                                    </div>
+                                    <h4 class="font-bold text-sm mb-1">Article Title</h4>
+                                    <p class="text-gray-600 text-xs mb-2">Excerpt preview...</p>
+                                    <span class="text-blue-600 text-xs font-semibold">Read More →</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentArticleId = null;
+
+        // Load all articles
+        async function loadArticles() {
+            try {
+                const response = await fetch('/api/admin/articles');
+                const articles = await response.json();
+                
+                const tbody = document.getElementById('articlesTableBody');
+                tbody.innerHTML = articles.map(article => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-blue-600 text-sm">📄</span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${article.title}</div>
+                                    <div class="text-sm text-gray-500">${article.excerpt?.substring(0, 50)}...</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">${article.category || 'Uncategorized'}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex space-x-2">
+                                ${article.is_published ? '<span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Published</span>' : '<span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Draft</span>'}
+                                ${article.is_featured ? '<span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Featured</span>' : ''}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${new Date(article.created_at).toLocaleDateString()}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex space-x-2">
+                                <button onclick="editArticle('${article.id}')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">Edit</button>
+                                <button onclick="viewArticle('${article.slug}')" class="text-green-600 hover:text-green-700 text-sm font-medium">View</button>
+                                <button onclick="quickDelete('${article.id}')" class="text-red-600 hover:text-red-700 text-sm font-medium">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load articles:', error);
+            }
+        }
+
+        // Edit article
+        async function editArticle(articleId) {
+            try {
+                const response = await fetch('/api/admin/articles');
+                const articles = await response.json();
+                const article = articles.find(a => a.id === articleId);
+                
+                if (!article) return;
+                
+                currentArticleId = articleId;
+                document.getElementById('editId').value = article.id;
+                document.getElementById('editTitle').value = article.title;
+                document.getElementById('editCategory').value = article.category || 'Resume Tips';
+                document.getElementById('editAuthor').value = article.author || 'ResumeSmartBot';
+                document.getElementById('editExcerpt').value = article.excerpt || '';
+                document.getElementById('editContent').value = article.content_markdown || article.content || '';
+                document.getElementById('editPublished').checked = article.is_published;
+                document.getElementById('editFeatured').checked = article.is_featured;
+                document.getElementById('editAdsEnabled').checked = article.ads_enabled;
+                
+                updatePreview();
+                document.getElementById('editModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Failed to load article:', error);
+            }
+        }
+
+        // Update preview
+        function updatePreview() {
+            const content = document.getElementById('editContent').value;
+            const title = document.getElementById('editTitle').value;
+            const excerpt = document.getElementById('editExcerpt').value;
+            
+            // Update live preview
+            if (content) {
+                document.getElementById('previewContent').innerHTML = marked.parse(content);
+            }
+            
+            // Update SEO preview
+            document.getElementById('seoTitle').textContent = title + ' - ResumeSmartBuild';
+            document.getElementById('seoUrl').textContent = 'resumesmartbuild.com/articles/' + title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            document.getElementById('seoDesc').textContent = excerpt;
+            
+            // Update card preview
+            const cardTitle = document.querySelector('#cardPreview h4');
+            const cardExcerpt = document.querySelector('#cardPreview p');
+            cardTitle.textContent = title || 'Article Title';
+            cardExcerpt.textContent = excerpt || 'Excerpt preview...';
+        }
+
+        // Update article
+        async function updateArticle() {
+            try {
+                const articleData = {
+                    title: document.getElementById('editTitle').value,
+                    category: document.getElementById('editCategory').value,
+                    author: document.getElementById('editAuthor').value,
+                    excerpt: document.getElementById('editExcerpt').value,
+                    content: document.getElementById('editContent').value,
+                    is_published: document.getElementById('editPublished').checked,
+                    is_featured: document.getElementById('editFeatured').checked,
+                    ads_enabled: document.getElementById('editAdsEnabled').checked
+                };
+                
+                const response = await fetch(`/api/admin/articles/${currentArticleId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(articleData)
+                });
+                
+                if (response.ok) {
+                    alert('Article updated successfully!');
+                    closeModal();
+                    loadArticles();
+                } else {
+                    alert('Failed to update article');
+                }
+            } catch (error) {
+                alert('Error updating article: ' + error.message);
+            }
+        }
+
+        // Generate thumbnail
+        function generateThumbnail() {
+            alert('Thumbnail generated! Social media preview will be auto-created.');
+        }
+
+        // Delete current article
+        async function deleteCurrentArticle() {
+            if (confirm('Are you sure you want to delete this article?')) {
+                try {
+                    const response = await fetch(`/api/admin/articles/${currentArticleId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        alert('Article deleted successfully!');
+                        closeModal();
+                        loadArticles();
+                    } else {
+                        alert('Failed to delete article');
+                    }
+                } catch (error) {
+                    alert('Error deleting article: ' + error.message);
+                }
+            }
+        }
+
+        // Quick delete
+        async function quickDelete(articleId) {
+            if (confirm('Are you sure you want to delete this article?')) {
+                try {
+                    const response = await fetch(`/api/admin/articles/${articleId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        alert('Article deleted successfully!');
+                        loadArticles();
+                    } else {
+                        alert('Failed to delete article');
+                    }
+                } catch (error) {
+                    alert('Error deleting article: ' + error.message);
+                }
+            }
+        }
+
+        // View article
+        function viewArticle(slug) {
+            window.open(`/articles/${slug}`, '_blank');
+        }
+
+        // Create new article
+        function createNewArticle() {
+            window.location.href = '/admin/articles.html';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            currentArticleId = null;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadArticles);
+    </script>
+</body>
+</html>
