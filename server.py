@@ -383,20 +383,27 @@ def create_article():
             data.get('ads_enabled', False)
         ))
         
-        article_id, created_at = cur.fetchone()
-        conn.commit()
-        cur.close()
-        conn.close()
-        
-        return jsonify({
-            'message': 'Article created successfully',
-            'article': {
-                'id': str(article_id),
-                'title': data['title'],
-                'slug': slug,
-                'created_at': created_at.isoformat()
-            }
-        }), 201
+        result = cur.fetchone()
+        if result:
+            article_id, created_at = result
+            conn.commit()
+            cur.close()
+            conn.close()
+            
+            return jsonify({
+                'message': 'Article created successfully',
+                'article': {
+                    'id': str(article_id),
+                    'title': data['title'],
+                    'slug': slug,
+                    'created_at': created_at.isoformat()
+                }
+            }), 201
+        else:
+            conn.rollback()
+            cur.close()
+            conn.close()
+            return jsonify({'message': 'Failed to create article - no result returned'}), 500
         
     except Exception as e:
         return jsonify({'message': f'Failed to create article: {str(e)}'}), 500
@@ -1002,5 +1009,7 @@ def serve_admin(filename):
     return send_from_directory('admin', filename)
 
 if __name__ == '__main__':
-    print("🚀 ResumeSmartBuild Server starting on port 5000")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    print(f"🚀 ResumeSmartBuild Server starting on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=True)
