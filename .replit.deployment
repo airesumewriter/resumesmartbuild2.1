@@ -1,0 +1,7 @@
+[deployment]
+run = ["python", "server.py"]
+deploymentTarget = "cloudrun"
+
+[deployment.env]
+PORT = "5000"
+FLASK_ENV = "production"
