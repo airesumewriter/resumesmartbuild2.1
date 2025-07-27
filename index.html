@@ -23,6 +23,22 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
+        
+        /* Hide unwanted external popups and subscription forms */
+        [class*="popup"], [class*="subscribe"], [class*="newsletter"],
+        [id*="popup"], [id*="subscribe"], [id*="newsletter"],
+        .replit-popup, .external-popup, .subscription-popup {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            z-index: -1 !important;
+        }
+        
+        /* Ensure our content is always visible */
+        #root {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -635,6 +651,54 @@
                 </div>
             );
         };
+
+        // Hide external popups when DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove any subscription popups that may appear
+            const removePopups = () => {
+                // Check for specific text content that indicates subscription popup
+                const textContent = ['Stay Updated', 'Subscribe Free', 'resume tips', 'AI Tools'];
+                
+                // Remove elements with subscription-related text
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.textContent && textContent.some(text => 
+                        el.textContent.includes(text) && 
+                        !el.closest('#root') && 
+                        el.tagName !== 'SCRIPT'
+                    )) {
+                        // Check if it's a modal/popup by looking for fixed positioning
+                        const style = window.getComputedStyle(el);
+                        if (style.position === 'fixed' || style.position === 'absolute') {
+                            el.remove();
+                        }
+                    }
+                });
+                
+                // Also remove by common selectors
+                const popupSelectors = [
+                    '[class*="popup"]', '[class*="subscribe"]', '[class*="newsletter"]',
+                    '[id*="popup"]', '[id*="subscribe"]', '[id*="newsletter"]',
+                    '.replit-popup', '.external-popup', '.subscription-popup',
+                    'div[style*="position: fixed"]', 'div[style*="z-index: 999"]'
+                ];
+                
+                popupSelectors.forEach(selector => {
+                    document.querySelectorAll(selector).forEach(el => {
+                        if (el && !el.closest('#root')) {
+                            el.remove();
+                        }
+                    });
+                });
+            };
+            
+            // Run immediately and periodically
+            removePopups();
+            setInterval(removePopups, 500);
+            
+            // Also run when mutations are observed
+            const observer = new MutationObserver(removePopups);
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
 
         // Render the app
         ReactDOM.render(<App />, document.getElementById('root'));
