@@ -347,20 +347,28 @@ def create_article():
         if cur.fetchone():
             return jsonify({'message': 'Slug already exists'}), 400
         
-        # Insert new article
+        # Insert new article with enhanced fields
         cur.execute("""
-            INSERT INTO articles (title, slug, content, author, excerpt, cover_image_url, is_published, is_featured)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO articles (title, slug, content, content_markdown, content_html, category, 
+                                author, excerpt, cover_image_url, is_published, is_featured, 
+                                meta_description, meta_keywords, ads_enabled)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id, created_at
         """, (
             data['title'],
             slug,
             data['content'],
+            data.get('content', ''),  # Store markdown as content_markdown
+            markdown_to_html(data.get('content', '')),  # Convert to HTML
+            data.get('category', 'Career Tips'),
             data.get('author', 'ResumeSmartBot'),
             data.get('excerpt', ''),
             data.get('cover_image_url'),
             data.get('is_published', True),
-            data.get('is_featured', False)
+            data.get('is_featured', False),
+            data.get('excerpt', ''),  # Use excerpt as meta description
+            extract_keywords(data.get('content', '')),
+            data.get('ads_enabled', False)
         ))
         
         article_id, created_at = cur.fetchone()
@@ -392,8 +400,9 @@ def get_admin_articles():
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT id, title, slug, author, excerpt, created_at, updated_at, 
-                   cover_image_url, is_published, is_featured
+            SELECT id, title, slug, content, content_markdown, category, author, excerpt, 
+                   created_at, updated_at, cover_image_url, is_published, is_featured,
+                   meta_description, meta_keywords, ads_enabled, date_published
             FROM articles 
             ORDER BY created_at DESC
         """)
@@ -404,13 +413,20 @@ def get_admin_articles():
                 'id': str(row[0]),
                 'title': row[1],
                 'slug': row[2],
-                'author': row[3],
-                'excerpt': row[4],
-                'created_at': row[5].isoformat() if row[5] else None,
-                'updated_at': row[6].isoformat() if row[6] else None,
-                'cover_image_url': row[7],
-                'is_published': row[8],
-                'is_featured': row[9]
+                'content': row[3],
+                'content_markdown': row[4],
+                'category': row[5],
+                'author': row[6],
+                'excerpt': row[7],
+                'created_at': row[8].isoformat() if row[8] else None,
+                'updated_at': row[9].isoformat() if row[9] else None,
+                'cover_image_url': row[10],
+                'is_published': row[11],
+                'is_featured': row[12],
+                'meta_description': row[13],
+                'meta_keywords': row[14],
+                'ads_enabled': row[15],
+                'date_published': row[16].isoformat() if row[16] else None
             })
         
         cur.close()
@@ -578,6 +594,205 @@ def view_article(slug):
         
     except Exception as e:
         return f"Error loading article: {str(e)}", 500
+
+# Helper functions for enhanced article processing
+def markdown_to_html(markdown_content):
+    """Convert markdown to HTML with Tailwind classes"""
+    import re
+    
+    html = markdown_content
+    
+    # Process CTA blocks
+    html = re.sub(r'{{CTA_PREMIUM}}(.*?){{\/CTA_PREMIUM}}', 
+                  r'<div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg my-8 text-center">\1</div>', 
+                  html, flags=re.DOTALL)
+    html = re.sub(r'{{CTA_MID}}(.*?){{\/CTA_MID}}', 
+                  r'<div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg my-8 text-center">\1</div>', 
+                  html, flags=re.DOTALL)
+    
+    # Process affiliate blocks
+    html = re.sub(r'{{AFFILIATE}}(.*?){{\/AFFILIATE}}', 
+                  r'<div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg my-6">🔥 <strong>Recommended:</strong> \1</div>', 
+                  html, flags=re.DOTALL)
+    
+    # Process ad slots
+    html = re.sub(r'{{AD_TOP}}.*?{{\/AD_TOP}}', 
+                  '<!-- AD SLOT: Top Banner --><div class="bg-gray-100 border-2 border-dashed border-gray-300 p-8 text-center text-gray-500 my-6">📱 Ad Slot</div>', 
+                  html, flags=re.DOTALL)
+    html = re.sub(r'{{AD_MID}}.*?{{\/AD_MID}}', 
+                  '<!-- AD SLOT: Mid Article --><div class="bg-gray-100 border-2 border-dashed border-gray-300 p-8 text-center text-gray-500 my-6">📱 Ad Slot</div>', 
+                  html, flags=re.DOTALL)
+    html = re.sub(r'{{AD_BOTTOM}}.*?{{\/AD_BOTTOM}}', 
+                  '<!-- AD SLOT: Bottom Sticky --><div class="bg-gray-100 border-2 border-dashed border-gray-300 p-8 text-center text-gray-500 my-6">📱 Ad Slot</div>', 
+                  html, flags=re.DOTALL)
+    
+    # Basic markdown processing
+    html = re.sub(r'^# (.*?)$', r'<h1 class="text-4xl font-bold text-gray-900 mb-6">\1</h1>', html, flags=re.MULTILINE)
+    html = re.sub(r'^## (.*?)$', r'<h2 class="text-2xl font-semibold text-gray-800 mb-4">\1</h2>', html, flags=re.MULTILINE)
+    html = re.sub(r'^### (.*?)$', r'<h3 class="text-xl font-medium text-gray-700 mb-3">\1</h3>', html, flags=re.MULTILINE)
+    html = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', html)
+    html = re.sub(r'\*(.*?)\*', r'<em>\1</em>', html)
+    html = re.sub(r'`(.*?)`', r'<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">\1</code>', html)
+    html = re.sub(r'^\- (.*?)$', r'<li>\1</li>', html, flags=re.MULTILINE)
+    html = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2" class="text-blue-600 hover:underline">\1</a>', html)
+    
+    # Wrap paragraphs
+    paragraphs = html.split('\n\n')
+    processed_paragraphs = []
+    for p in paragraphs:
+        p = p.strip()
+        if p and not p.startswith('<'):
+            p = f'<p class="mb-6 text-lg leading-relaxed text-gray-700">{p}</p>'
+        processed_paragraphs.append(p)
+    
+    return '\n\n'.join(processed_paragraphs)
+
+def extract_keywords(content):
+    """Extract keywords from content for SEO"""
+    import re
+    words = re.findall(r'\b[a-zA-Z]{3,}\b', content.lower())
+    common_words = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'had', 'day', 'get', 'may', 'say', 'she', 'use', 'way', 'who', 'its', 'now', 'top', 'how', 'man', 'new', 'old', 'see', 'two', 'him', 'has', 'did', 'what', 'your', 'when', 'this', 'with', 'have', 'from', 'they', 'will', 'been', 'each', 'like', 'them', 'than', 'many', 'some', 'time', 'very', 'into', 'only', 'over', 'also', 'back', 'after', 'first', 'well', 'work', 'life', 'right', 'down', 'years', 'should', 'people', 'through', 'would', 'good', 'other', 'could', 'before', 'think', 'state', 'never', 'about', 'those', 'being', 'might', 'where', 'while', 'during', 'these', 'little', 'great', 'there', 'their', 'under', 'still', 'too', 'own', 'between', 'such'}
+    
+    filtered_words = [word for word in words if word not in common_words and len(word) > 3]
+    word_count = {}
+    for word in filtered_words:
+        word_count[word] = word_count.get(word, 0) + 1
+    
+    # Get top 10 keywords
+    top_keywords = sorted(word_count.items(), key=lambda x: x[1], reverse=True)[:10]
+    return ', '.join([word for word, count in top_keywords])
+
+# Enhanced API endpoints
+@app.route('/api/featured', methods=['GET'])
+def get_featured_articles():
+    try:
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT id, title, slug, author, excerpt, created_at, 
+                   cover_image_url, category
+            FROM articles 
+            WHERE is_published = TRUE AND is_featured = TRUE
+            ORDER BY created_at DESC
+            LIMIT 5
+        """)
+        
+        articles = []
+        for row in cur.fetchall():
+            articles.append({
+                'id': str(row[0]),
+                'title': row[1],
+                'slug': row[2],
+                'author': row[3],
+                'excerpt': row[4],
+                'created_at': row[5].isoformat() if row[5] else None,
+                'cover_image_url': row[6],
+                'category': row[7]
+            })
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify(articles)
+        
+    except Exception as e:
+        return jsonify({'message': f'Failed to fetch featured articles: {str(e)}'}), 500
+
+@app.route('/api/search', methods=['GET'])
+def search_articles():
+    try:
+        query = request.args.get('q', '').strip()
+        if not query:
+            return jsonify([])
+        
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        # Search in title, excerpt, and content
+        cur.execute("""
+            SELECT id, title, slug, author, excerpt, created_at, 
+                   cover_image_url, category
+            FROM articles 
+            WHERE is_published = TRUE 
+            AND (title ILIKE %s OR excerpt ILIKE %s OR content ILIKE %s)
+            ORDER BY 
+                CASE WHEN title ILIKE %s THEN 1 ELSE 2 END,
+                created_at DESC
+            LIMIT 20
+        """, (f'%{query}%', f'%{query}%', f'%{query}%', f'%{query}%'))
+        
+        articles = []
+        for row in cur.fetchall():
+            articles.append({
+                'id': str(row[0]),
+                'title': row[1],
+                'slug': row[2],
+                'author': row[3],
+                'excerpt': row[4],
+                'created_at': row[5].isoformat() if row[5] else None,
+                'cover_image_url': row[6],
+                'category': row[7]
+            })
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify(articles)
+        
+    except Exception as e:
+        return jsonify({'message': f'Search failed: {str(e)}'}), 500
+
+@app.route('/api/articles/<slug>', methods=['GET'])
+def get_article_by_slug(slug):
+    try:
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT id, title, slug, content, content_html, category, author, excerpt, 
+                   created_at, cover_image_url, is_featured, meta_description, meta_keywords
+            FROM articles 
+            WHERE slug = %s AND is_published = TRUE
+        """, (slug,))
+        
+        article = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if not article:
+            return jsonify({'message': 'Article not found'}), 404
+        
+        return jsonify({
+            'id': str(article[0]),
+            'title': article[1],
+            'slug': article[2],
+            'content': article[3],
+            'content_html': article[4],
+            'category': article[5],
+            'author': article[6],
+            'excerpt': article[7],
+            'created_at': article[8].isoformat() if article[8] else None,
+            'cover_image_url': article[9],
+            'is_featured': article[10],
+            'meta_description': article[11],
+            'meta_keywords': article[12]
+        })
+        
+    except Exception as e:
+        return jsonify({'message': f'Failed to fetch article: {str(e)}'}), 500
 
 @app.route('/api/cover-letters/generate', methods=['POST'])
 def generate_cover_letter():

@@ -1,0 +1,191 @@
+🧠 Build a full Article Management System (Admin Side) for ResumeSmartBuild.com
+
+---
+
+✅ CORE FEATURES:
+1. Admin login/authentication (secure session-based or token-based)
+2. “Add New Article” page with Markdown editor + live preview
+3. "Edit Article" and "Delete Article" functionality
+4. Auto-generate:
+   - SEO meta tags
+   - Schema.org markup
+   - Tailwind-formatted HTML
+5. Article structure should support:
+   - `title`, `slug`, `markdown`, `HTML`, `author`, `date`
+   - `category` (e.g., ATS, Resume Tips, Job Hunting)
+   - `isFeatured` boolean (to show on homepage preview tile)
+   - `isPublished` boolean (hide or publish)
+   - `featured_image_url`
+   - `affiliate_links[]`
+   - `ads_enabled` boolean (true adds ad slots in output HTML)
+
+---
+
+🧱 DATABASE SCHEMA (SQLite or PostgreSQL):
+```sql
+CREATE TABLE articles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  content_markdown TEXT,
+  content_html TEXT,
+  category TEXT,
+  author TEXT,
+  date_published DATE,
+  is_published BOOLEAN,
+  is_featured BOOLEAN,
+  featured_image TEXT,
+  meta_description TEXT,
+  meta_keywords TEXT
+);
+
+
+📘 MARKDOWN EDITOR + LIVE PREVIEW:
+
+Input: Markdown textarea
+
+Output: Live rendering in right-hand pane
+
+On Save: Convert markdown → Tailwind-styled HTML (inject required classes)
+
+Tailwind mapping:
+
+# → <h1 class="text-4xl font-bold text-gray-900">
+
+## → <h2 class="text-2xl font-semibold text-gray-800">
+
+### → <h3 class="text-xl font-medium text-gray-700">
+
+- or * → <ul class="list-disc pl-6 space-y-2 text-gray-700">
+
+Paragraph → <p class="mb-6 text-lg leading-relaxed text-gray-700">
+
+Blockquote → <blockquote class="border-l-4 border-blue-500 pl-6 italic bg-blue-50 p-4 rounded-r">
+
+Code block → styled with Tailwind monospace and bg-gray-100
+
+🖼️ AUTO-THUMBNAIL IMAGE GENERATOR:
+
+Automatically generate a 1200x630 social card using:
+
+Title text
+
+Category or icon
+
+Optional background gradient or pattern
+
+Save as .jpg or .png in /public/images/articles/slug.jpg
+
+Update featured_image field in DB
+
+Use dynamic image generation (Canvas API or Puppeteer headless browser)
+
+🗃️ OUTPUT STRUCTURE:
+
+/articles/article-slug.html for full article
+
+/articles/index.html to list all articles (reverse chronological)
+
+index.html (homepage): show isFeatured articles in a 2-column grid teaser preview
+
+Related articles section inside each article (show 2 random articles in same category)
+
+📱 JSON API FOR MOBILE APP:
+Build an endpoint: /api/articles that returns JSON:
+
+json
+Copy
+Edit
+[
+  {
+    "title": "How to Beat ATS in 2025",
+    "slug": "beat-ats-2025",
+    "category": "ATS Optimization",
+    "featured_image": "/images/articles/beat-ats-2025.jpg",
+    "excerpt": "Master keyword strategies and formatting tips to win interviews.",
+    "date_published": "2024-12-15"
+  }
+]
+Additional API endpoints:
+
+/api/articles/:slug → full article data
+
+/api/featured → only is_featured = true
+
+/api/search?q=resume → keyword search
+
+🧹 FIX EXISTING ARTICLES:
+
+Reformat current /articles/ files using Tailwind layout
+
+Wrap all content in a .content-wrapper grid (article + sticky sidebar)
+
+Auto-wrap headings, paragraphs, blockquotes with correct Tailwind styles
+
+Ensure mobile responsiveness
+
+Add sticky notes, pro tips, key stats, and teaser blocks for curiosity engagement
+
+🎯 PERSUASIVE PSYCHOLOGY:
+
+Add teaser block on top:
+"Want to boost your job chances 300% faster? Use our Premium Templates ➜"
+
+Add 2 CTA buttons mid and bottom of article:
+"🔐 Unlock more features with ResumeSmartBuild Premium – Try it free!"
+
+Embed 1 affiliate block in middle:
+"🔥 Recommended Tool: ATS-Proof Your Resume in 7 Days → [Enroll Now]"
+
+💡 GOOGLE ADS PREP:
+Insert ad placeholders in HTML:
+
+html
+Copy
+Edit
+<!-- AD SLOT: Top Banner -->
+<!-- AD SLOT: Mid Article -->
+<!-- AD SLOT: Bottom Sticky -->
+Set ads_enabled = true in DB to auto-inject these
+
+📘 OPTIONAL MARKDOWN WRITING GUIDE:
+Generate a file: /admin/markdown-guide.html containing:
+
+Heading levels with preview
+
+Bullet and numbered list examples
+
+How to insert images, links, affiliate blocks
+
+CTA template blocks
+
+Ads/affiliate placeholders
+
+💻 FRONTEND TECHNOLOGY:
+
+Use Tailwind CSS for styling
+
+Static site templating (or React if site already React-based)
+
+Mobile-first design (max-width, responsive columns)
+
+🔁 FINAL CHECK & TEST:
+
+Validate HTML output per article
+
+Validate SEO meta: title, description, keywords
+
+Validate Schema.org Article structure
+
+Check mobile formatting and sticky sidebar behavior
+
+Ensure database CRUD works with article editor
+
+Test all API endpoints
+
+Render homepage article previews from DB
+
+No errors, no infinite loops, no broken layout
+
+🎉 FINAL GOAL:
+Build a complete admin system to manage articles, monetize with templates/ads/affiliate logic, optimize with SEO/Schema, and preview new articles on homepage — all with a great mobile-ready JSON API for future expansion.
