@@ -12,12 +12,50 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        .article-content h2 { @apply text-2xl font-bold text-gray-900 mt-8 mb-4; }
-        .article-content h3 { @apply text-xl font-semibold text-gray-800 mt-6 mb-3; }
-        .article-content p { @apply mb-4 leading-relaxed; }
-        .article-content ul { @apply list-disc pl-6 mb-4 space-y-2; }
-        .article-content ol { @apply list-decimal pl-6 mb-4 space-y-2; }
-        .article-content blockquote { @apply border-l-4 border-blue-500 pl-4 italic my-6 bg-blue-50 p-4 rounded-r; }
+        .article-content h2 { @apply text-3xl font-bold text-gray-900 mt-12 mb-6 border-b border-gray-200 pb-3; }
+        .article-content h3 { @apply text-xl font-semibold text-gray-800 mt-8 mb-4; }
+        .article-content p { @apply mb-6 leading-relaxed text-lg text-gray-700; }
+        .article-content ul { @apply list-disc pl-8 mb-6 space-y-3; }
+        .article-content ol { @apply list-decimal pl-8 mb-6 space-y-3; }
+        .article-content li { @apply text-lg text-gray-700 leading-relaxed; }
+        .article-content blockquote { @apply border-l-4 border-blue-500 pl-6 italic my-8 bg-blue-50 p-6 rounded-r text-lg; }
+        .sticky-note {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+            transform: rotate(-2deg);
+            transition: transform 0.3s ease;
+        }
+        .sticky-note:hover {
+            transform: rotate(0deg) scale(1.02);
+        }
+        .sticky-note::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 20px;
+            width: 30px;
+            height: 6px;
+            background: #f59e0b;
+            border-radius: 3px;
+        }
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 3rem;
+            align-items: start;
+        }
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .sticky-notes {
+                order: -1;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-['Inter']">
@@ -72,8 +110,10 @@
 
     <!-- Article Content -->
     <article class="py-16">
-        <div class="max-w-4xl mx-auto px-4">
-            <div class="article-content prose prose-lg max-w-none text-gray-700">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="content-wrapper">
+                <!-- Main Article Content -->
+                <div class="article-content max-w-none text-gray-700">
                 <p class="text-xl font-medium text-gray-800 mb-8">
                     In today's competitive job market, over 98% of Fortune 500 companies use Applicant Tracking Systems (ATS) to screen resumes before human eyes ever see them. If your resume isn't optimized for these systems, you might be automatically rejected before a recruiter even knows you exist.
                 </p>
@@ -252,6 +292,68 @@
                 <blockquote>
                     Ready to optimize your resume for ATS success? Use ResumeSmartBuild's AI-powered ATS scanner to get instant feedback and personalized recommendations for your resume.
                 </blockquote>
+                </div>
+
+                <!-- Sticky Notes Sidebar -->
+                <div class="sticky-notes space-y-6">
+                    <!-- Note 1: Key Takeaway -->
+                    <div class="sticky-note relative p-6 rounded-lg">
+                        <h4 class="font-bold text-gray-800 mb-3 text-lg">🎯 Key Takeaway</h4>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            <strong>98% of Fortune 500 companies</strong> use ATS systems. Your resume must be optimized for both robots and humans to succeed.
+                        </p>
+                    </div>
+
+                    <!-- Note 2: Critical Stats -->
+                    <div class="sticky-note relative p-6 rounded-lg">
+                        <h4 class="font-bold text-gray-800 mb-3 text-lg">📊 Critical Stats</h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• 75-85% keyword match needed</li>
+                            <li>• ATS rejects 75% of resumes</li>
+                            <li>• 6 seconds average human review</li>
+                        </ul>
+                    </div>
+
+                    <!-- Note 3: Must-Do Checklist -->
+                    <div class="sticky-note relative p-6 rounded-lg">
+                        <h4 class="font-bold text-gray-800 mb-3 text-lg">✅ Must-Do Checklist</h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• Use standard section headings</li>
+                            <li>• Avoid headers/footers</li>
+                            <li>• Include relevant keywords</li>
+                            <li>• Save as .docx and .pdf</li>
+                            <li>• Test with ATS scanners</li>
+                        </ul>
+                    </div>
+
+                    <!-- Note 4: Avoid These -->
+                    <div class="sticky-note relative p-6 rounded-lg">
+                        <h4 class="font-bold text-gray-800 mb-3 text-lg">⚠️ ATS Killers</h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• Images and graphics</li>
+                            <li>• Tables and columns</li>
+                            <li>• Fancy fonts</li>
+                            <li>• Text boxes</li>
+                            <li>• Special characters</li>
+                        </ul>
+                    </div>
+
+                    <!-- Note 5: Pro Tip -->
+                    <div class="sticky-note relative p-6 rounded-lg">
+                        <h4 class="font-bold text-gray-800 mb-3 text-lg">💡 Pro Tip</h4>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            <strong>Tailor every application!</strong> Generic resumes rarely pass ATS screening. Customize keywords for each job posting.
+                        </p>
+                    </div>
+
+                    <!-- Note 6: Quick Test -->
+                    <div class="sticky-note relative p-6 rounded-lg">
+                        <h4 class="font-bold text-gray-800 mb-3 text-lg">🔍 Quick Test</h4>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            Copy your resume into plain text. If it looks messy or unreadable, ATS systems will struggle too.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Article Navigation -->
