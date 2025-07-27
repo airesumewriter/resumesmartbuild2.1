@@ -1,0 +1,28 @@
+{
+  "name": "resumesmartbuild-server",
+  "version": "1.0.0",
+  "description": "ResumeSmartBuild Backend API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "cors": "^2.8.5",
+    "helmet": "^6.0.0",
+    "express-rate-limit": "^6.7.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.0",
+    "stripe": "^11.0.0",
+    "drizzle-orm": "^0.29.0",
+    "postgres": "^3.4.0",
+    "drizzle-zod": "^0.5.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}

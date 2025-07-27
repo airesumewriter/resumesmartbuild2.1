@@ -1,0 +1,277 @@
+You are an expert full-stack AI web developer. Please build a complete working web app called `ResumeSmartBuild.com` as described below. Use the following full system specification. 
+
+---
+
+### 🔧 TASK OVERVIEW
+
+Build a complete job-seeker platform that includes:
+- Resume builder with auto-suggestions
+- AI ATS scanner with keyword optimization
+- Cover letter generator
+- Job matcher engine
+- Premium feature paywall
+
+---
+
+### 🔗 STACK
+
+- **Frontend:** React + Tailwind CSS + TypeScript + Framer Motion
+- **Backend:** Node.js + Express + Python scripts (NLP, scoring)
+- **Database:** PostgreSQL + Redis
+- **Cloud:** AWS S3 (PDFs), Cloudflare CDN
+- **Auth:** Email + Google OAuth
+- **APIs:** SendGrid, Stripe, Indeed/LinkedIn (jobs)
+
+---
+
+### 🧠 MODULES TO BUILD
+
+1. **Landing Page (Hero CTA, templates, 3-step)**
+2. **Signup/Login with verification email (SendGrid)**
+3. **Template Selection (Free/Premium toggle)**
+4. **Resume Editor (left form + live preview + AI sidebar)**
+5. **ATS Scanner**
+    - Pacman animation
+    - Side-by-side diff
+    - Gamified badge
+6. **Cover Letter Generator**
+7. **Job Matcher**
+8. **Premium Upsell + Stripe Checkout**
+9. **Admin Panel (optional)**
+
+---
+
+### 🧠 ALGORITHMS
+
+- ATS Scanner (keyword match, structure, readability)
+- Job Matcher (cosine similarity)
+- Auto-suggest (Trie prefix tree)
+
+---
+
+### 🧪 TESTING & VALIDATION
+
+- ✅ Test every input/output
+- ✅ Validate all forms
+- ✅ No broken links or console errors
+- ✅ Responsive layout (mobile and desktop)
+- ✅ Bug-free and production-grade
+
+---
+
+### 📋 REVIEW REQUIREMENTS
+
+Please review **line by line**:
+- Ensure zero bugs or loopholes
+- Confirm all components and routes are fully connected
+- Confirm UI matches described SVG wireframes
+- Apply best practices (security, code comments, API key protection)
+- Bundle result into deploy-ready app (option to export ZIP)
+
+---
+
+### 🎯 FINAL DELIVERABLES
+
+- ✅ Working app in `/` folder
+- ✅ SQL schema for PostgreSQL
+- ✅ `.env.example` for credentials
+- ✅ Frontend + backend split in `client/` and `server/`
+- ✅ Optional: deploy to GitHub Pages or Vercel
+
+---
+
+Begin now. Build everything from scratch, use clean architecture, and review your own code end-to-end.
+🚀 Project: ResumeSmartBuild.com – AI-Powered Career Launchpad
+🔥 Unique Value Proposition
+Instant ATS Resume Optimization
+
+Industry-specific Free & Premium Templates
+
+AI Resume Enhancement, Cover Letter Builder, and Job Matching
+
+Gamified Career Dashboard
+
+Clean, mobile-responsive UI (with SVG wireframe-based layout)
+
+Real-time AI Tips, suggestions, and scan scoring
+
+🧠 Key Modules & Features
+1. Landing Page
+Hero CTA: "Build an ATS-Optimized Resume in 5 Minutes"
+
+3-Step Visual:
+1. Pick Template → 2. AI Edit → 3. Land Interviews
+
+Template Grid with "Free" and "Premium" badges
+
+Stats Counter: "10,000+ Resumes Scored 90%+ ATS"
+
+CTA: [Scan Your Resume Free – 3 Included]
+
+2. Template Selection
+Filters by Industry (Tech, Healthcare, Finance)
+
+Template preview with zoom hover
+
+Premium lock badge
+
+Use Template → Signup Modal
+
+3. Resume Editor
+plaintext
+Copy
+Edit
++---------------------+---------------------+----------------------+
+|  FORM FIELDS        |  LIVE RESUME PREVIEW|  AI SIDEBAR          |
++---------------------+---------------------+----------------------+
+Auto-suggested Job Title / Skills using Trie
+
+Live preview with AI keyword highlighting
+
+AI Sidebar shows:
+
+Resume tips
+
+ATS match preview
+
+Premium upsell block
+
+4. ATS Resume Scanner
+Gamified progress bar (Pacman SVG)
+
+Score 0–100%
+
+Below 90% → Show side-by-side view:
+
+plaintext
+Copy
+Edit
++-------------------+ +-------------------+
+| YOUR RESUME       | | SUGGESTED VERSION |
++-------------------+ +-------------------+
+Download options or upgrade for Job Match
+
+5. Job Matcher
+Location-aware + salary filter
+
+Cards with: Title, Remote tag, Match %, Apply button
+
+Premium filter unlocks “WFH Jobs”
+
+6. Cover Letter Generator
+AI-generated cover letter based on selected resume
+
+Editable and exportable
+
+Premium users = Unlimited usage
+
+💾 Database Schema (PostgreSQL)
+sql
+Copy
+Edit
+USERS
+- id (UUID, PK)
+- email
+- password_hash
+- is_verified
+- is_premium
+- scans_remaining
+
+RESUMES
+- id (UUID, PK)
+- user_id (FK)
+- template_id (FK)
+- content (JSONB)
+- last_scan_date
+
+TEMPLATES
+- id
+- name
+- category
+- is_free
+- preview_url
+
+SCANS
+- id
+- resume_id
+- score
+- suggestions (JSONB)
+
+JOBS
+- id
+- resume_id
+- title
+- company
+- salary_range
+- is_remote
+- apply_url
+🧠 Algorithms
+🟢 ATS SCANNER (Python)
+python
+Copy
+Edit
+def ats_scanner(resume, job_position):
+    keywords = fetch_keywords(job_position)
+    matches = count_matches(resume, keywords)
+    structure_score = check_sections(['Experience', 'Skills', 'Education'])
+    readability = calculate_flesch_score(resume)
+    suggestions = generate_improvements(keywords - matches)
+    score = (matches * 0.6) + (structure_score * 0.3) + (readability * 0.1)
+    return score, suggestions
+🟣 JOB MATCHER
+python
+Copy
+Edit
+def job_matcher(resume, location, radius):
+    resume_keywords = extract_keywords(resume)
+    jobs = fetch_jobs(location, radius)
+    for job in jobs:
+        job['match_score'] = cosine_similarity(resume_keywords, job['description'])
+    return sort_by_score(filter_remote(jobs))
+🔵 AUTO-SUGGEST
+Prefix Trie matching
+
+Real-time filtering based on category DB:
+
+json
+Copy
+Edit
+{
+  "Tech": ["Python", "AWS", "Agile"],
+  "Healthcare": ["CPR", "EMR"],
+  "Finance": ["GAAP", "ROI"]
+}
+💳 Premium Features
+20 scans/month
+
+Unlock premium templates
+
+WFH job matches
+
+Unlimited cover letters
+
+LinkedIn optimization
+
+Payments: Stripe / PayPal
+
+🧰 Stack
+Layer	Tech
+Frontend	React + TypeScript + Tailwind + Framer Motion
+Backend	Node.js + Python
+Database	PostgreSQL + Redis
+API/Infra	AWS S3, Cloudflare CDN, SendGrid, Stripe, Indeed API
+
+♿ Accessibility
+Contrast ratio > 4.5:1
+
+Toggle for reduced motion
+
+Keyboard navigable forms
+
+🔄 Gamification
+SVG animations: Pacman scanner, DNA helix progress
+
+Badges: “First Scan”, “Perfect Score”
+
+Animation: Resume Strength Radar Chart
+
