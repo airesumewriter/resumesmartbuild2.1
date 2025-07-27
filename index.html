@@ -3,57 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeSmartBuild - AI-Powered Resume Builder | Professional ATS-Optimized Resumes</title>
-    <meta name="description" content="Create professional, ATS-optimized resumes with our AI-powered tools. Free resume builder, ATS scanner, job matcher, and premium templates. Land your dream job today.">
-    <meta name="keywords" content="resume builder, ATS resume scanner, cover letter generator, job matcher, professional resume templates, AI resume tools, career optimization">
-    <meta name="author" content="ResumeSmartBuild">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://resumesmartbuild.com/">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="ResumeSmartBuild - AI-Powered Resume Builder">
-    <meta property="og:description" content="Create professional, ATS-optimized resumes with our AI-powered tools. Free resume builder, ATS scanner, and premium templates.">
-    <meta property="og:url" content="https://resumesmartbuild.com/">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://resumesmartbuild.com/images/og-image.jpg">
-    <meta property="og:site_name" content="ResumeSmartBuild">
-    
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ResumeSmartBuild - AI-Powered Resume Builder">
-    <meta name="twitter:description" content="Create professional, ATS-optimized resumes with our AI-powered tools.">
-    <meta name="twitter:image" content="https://resumesmartbuild.com/images/twitter-card.jpg">
-    
-    <!-- Schema.org JSON-LD -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "ResumeSmartBuild",
-        "description": "AI-powered resume builder and career optimization platform",
-        "url": "https://resumesmartbuild.com",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web Browser",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD",
-            "description": "Free resume builder with premium features available"
-        },
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "ratingCount": "1250",
-            "bestRating": "5",
-            "worstRating": "1"
-        },
-        "creator": {
-            "@type": "Organization",
-            "name": "ResumeSmartBuild",
-            "url": "https://resumesmartbuild.com"
-        }
-    }
-    </script>
+    <title>ResumeSmartBuild - AI-Powered Resume Builder</title>
+    <meta name="description" content="Create professional resumes with AI-powered tools. ATS scanner, resume builder, cover letter generator, and job matcher.">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -65,64 +16,7 @@
     <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
     
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="styles/style.css?v=2024-01-18">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Favicon and Icons -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-    
-    <!-- Theme color for mobile browsers -->
-    <meta name="theme-color" content="#3B82F6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="ResumeSmartBuild">
-    
-    <!-- Mobile Navigation Fix -->
-    <style>
-    @media (max-width: 768px) {
-        .nav-menu {
-            display: none !important;
-            position: absolute !important;
-            top: 100% !important;
-            left: 0 !important;
-            right: 0 !important;
-            background: white !important;
-            flex-direction: column !important;
-            padding: 20px !important;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
-            border-top: 1px solid #E5E7EB !important;
-            z-index: 999 !important;
-            width: 100% !important;
-        }
-        
-        .nav-menu.active {
-            display: flex !important;
-        }
-        
-        .nav-toggle {
-            display: flex !important;
-            flex-direction: column !important;
-            cursor: pointer !important;
-        }
-        
-        .nav-menu .nav-link {
-            padding: 15px 0 !important;
-            border-bottom: 1px solid #eee !important;
-            width: 100% !important;
-            color: #1F2937 !important;
-            text-decoration: none !important;
-        }
-        
-        .nav-menu .nav-link:last-of-type {
-            border-bottom: none !important;
-        }
-    }
-    </style>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -143,8 +37,6 @@
                 <a href="#templates" class="nav-link">Templates</a>
                 <a href="#articles" class="nav-link">Articles</a>
                 <a href="ats.html" class="nav-link">ATS Scanner</a>
-                <a href="premium.html" class="nav-link">Premium</a>
-                <a href="paypal_config.html" class="nav-link">PayPal Config</a>
                 <button class="btn-login" id="login-btn">Login</button>
             </div>
         </div>
@@ -380,13 +272,10 @@
                     <a href="#templates">Templates</a>
                     <a href="articles/index.html">Articles</a>
                     <a href="ats.html">ATS Scanner</a>
-                    <a href="privacy-policy.html">Privacy Policy</a>
-                    <a href="terms-of-service.html">Terms of Service</a>
-                    <a href="cookie-policy.html">Cookie Policy</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 ResumeSmartBuild. All rights reserved.</p>
+                <p>&copy; 2024 ResumeSmartBuild. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -401,8 +290,6 @@
     <script src="https://www.chatbase.co/embed.min.js" defer></script>
 
     <!-- Custom Scripts -->
-    <script src="security.js"></script>
-    <script src="scripts/autocomplete.js"></script>
     <script src="scripts/resumetemplates.js"></script>
     <script src="scripts/articles.js"></script>
     <script src="scripts/script.js"></script>

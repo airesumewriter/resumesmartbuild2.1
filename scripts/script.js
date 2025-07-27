@@ -1,50 +1,20 @@
 // Main application script for ResumeSmartBuild
 // Handles Firebase authentication, modals, navigation, and core functionality
 
-// Firebase Configuration - Load from environment
-let firebaseConfig = {};
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCpLscgzlbaIz6vwLZxrNg8s0IUpS-ls3s",
+    authDomain: "resumesmartbuild.firebaseapp.com",
+    projectId: "resumesmartbuild",
+    storageBucket: "resumesmartbuild.appspot.com",
+    messagingSenderId: "190620294122",
+    appId: "1:190620294122:web:9a93a5763ddcf3e1c63093"
+};
 
-// Initialize Firebase with dynamic config
-async function initializeFirebase() {
-    try {
-        const response = await fetch('/api/config');
-        const config = await response.json();
-        
-        // Initialize Firebase with the loaded configuration
-        firebase.initializeApp(config.firebase);
-        
-        // Initialize auth and database services
-        auth = firebase.auth();
-        database = firebase.database();
-        
-        console.log('Firebase initialized with secure config');
-        
-        // Setup auth state listener
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                isAuthenticated = true;
-                updateUIForAuthenticatedUser(user);
-            } else {
-                currentUser = null;
-                isAuthenticated = false;
-                updateUIForGuestUser();
-            }
-        });
-        
-        // Initialize the rest of the application after Firebase is ready
-        initializeApp();
-        
-    } catch (error) {
-        console.error('Failed to load Firebase config:', error);
-        // Show error message for missing configuration
-        showNotification('Configuration error. Please check your connection and try again.', 'error');
-        return;
-    }
-}
-
-// Initialize Firebase and auth services
-let auth, database;
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.database();
 
 // Global state
 let currentUser = null;
@@ -80,21 +50,29 @@ const tabContents = document.querySelectorAll('.tab-content');
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('ResumeSmartBuild v1.0 - Script loaded successfully');
-    
-    // Initialize Firebase first, then the rest of the app
-    initializeFirebase();
-    
-    // Setup event listeners immediately (don't depend on Firebase)
+    initializeApp();
     setupEventListeners();
     initializeScrollReveal();
     handleToolCards();
 });
 
-// Initialize the application (called after Firebase is ready)
+// Initialize the application
 function initializeApp() {
     console.log('ResumeSmartBuild v1.0 - Initializing...');
     
+    // Check authentication state
+    auth.onAuthStateChanged(function(user) {
+        if (user) {
+            currentUser = user;
+            isAuthenticated = true;
+            updateUIForAuthenticatedUser(user);
+        } else {
+            currentUser = null;
+            isAuthenticated = false;
+            updateUIForGuestUser();
+        }
+    });
+
     // Handle mobile navigation
     setupMobileNavigation();
     
@@ -187,13 +165,11 @@ function setupEventListeners() {
 // Mobile navigation
 function setupMobileNavigation() {
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', function(e) {
-            e.preventDefault();
+        navToggle.addEventListener('click', function() {
             navMenu.classList.toggle('active');
             
             // Animate hamburger
             const spans = navToggle.querySelectorAll('span');
-            
             spans.forEach((span, index) => {
                 if (navMenu.classList.contains('active')) {
                     if (index === 0) span.style.transform = 'rotate(45deg) translate(5px, 5px)';
@@ -514,7 +490,7 @@ async function handleLogout() {
     }
 }
 
-// Newsletter signup with SendGrid integration
+// Newsletter signup
 async function handleNewsletterSignup(e) {
     e.preventDefault();
     
@@ -535,49 +511,26 @@ async function handleNewsletterSignup(e) {
     try {
         showLoading(true);
         
-        // Store subscription in Firebase and show success message
+        // Store newsletter subscription in Firebase
         const subscriptionData = {
             name: name,
             email: email,
             subscribedAt: firebase.database.ServerValue.TIMESTAMP,
-            source: 'homepage',
-            status: 'subscribed'
+            source: 'homepage'
         };
         
         await database.ref('newsletter_subscriptions').push(subscriptionData);
         
         closeModal(newsletterModal);
-        showNotification('Welcome! Check your email for your free Resume Success Guide PDF.', 'success');
-        
-        // Track newsletter signup
-        trackNewsletterSignup(email, name);
+        showNotification('Thank you for subscribing! You will receive our latest updates.', 'success');
         
         // Reset form
         form.reset();
-        
     } catch (error) {
         console.error('Newsletter signup error:', error);
-        showNotification('Network error. Please check your connection and try again.', 'error');
+        showNotification('Error subscribing to newsletter. Please try again.', 'error');
     } finally {
         showLoading(false);
-    }
-}
-
-// Track newsletter signup for analytics
-function trackNewsletterSignup(email, name) {
-    // Analytics tracking can be added here
-    console.log('Newsletter signup tracked:', { email, name, timestamp: new Date().toISOString() });
-    
-    // Store in localStorage for user experience
-    try {
-        const signupData = {
-            email: email,
-            name: name,
-            subscribedAt: new Date().toISOString()
-        };
-        localStorage.setItem('newsletter_subscriber', JSON.stringify(signupData));
-    } catch (e) {
-        console.log('Could not store newsletter data locally');
     }
 }
 
@@ -681,22 +634,12 @@ function showNotification(message, type = 'info') {
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    
-    // Create safe HTML structure
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'notification-content';
-    
-    const messageSpan = document.createElement('span');
-    messageSpan.className = 'notification-message';
-    messageSpan.textContent = message; // Safe text-only assignment
-    
-    const closeButton = document.createElement('button');
-    closeButton.className = 'notification-close';
-    closeButton.innerHTML = '&times;';
-    
-    contentDiv.appendChild(messageSpan);
-    contentDiv.appendChild(closeButton);
-    notification.appendChild(contentDiv);
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-message">${message}</span>
+            <button class="notification-close">&times;</button>
+        </div>
+    `;
     
     // Add styles
     notification.style.cssText = `
@@ -834,20 +777,5 @@ window.ResumeSmartBuild = {
     isAuthenticated: () => isAuthenticated,
     currentUser: () => currentUser
 };
-
-// Initialize all components when the DOM is loaded
-document.addEventListener('DOMContentLoaded', async function() {
-    await initializeFirebase();
-    setupEventListeners();
-    setupScrollReveal();
-    setupMobileNavigation();
-    
-    // Initialize autocomplete functionality
-    if (typeof initializeAutocomplete === 'function') {
-        initializeAutocomplete();
-    }
-    
-    console.log('ResumeSmartBuild v1.0 - Initializing...');
-});
 
 console.log('ResumeSmartBuild v1.0 - Script loaded successfully');

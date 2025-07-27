@@ -96,79 +96,33 @@ function createTemplateCard(template) {
     card.setAttribute('data-category', template.category);
     card.setAttribute('data-premium', template.isPremium);
 
-    // Create template preview section
-    const previewDiv = document.createElement('div');
-    previewDiv.className = 'template-preview';
-    
-    const icon = document.createElement('i');
-    icon.className = template.previewIcon;
-    
-    const badge = document.createElement('span');
-    badge.className = `template-badge ${template.isPremium ? 'premium' : 'free'}`;
-    badge.textContent = template.isPremium ? 'Premium' : 'Free';
-    
-    previewDiv.appendChild(icon);
-    previewDiv.appendChild(badge);
+    const badgeClass = template.isPremium ? 'premium' : 'free';
+    const badgeText = template.isPremium ? 'Premium' : 'Free';
 
-    // Create template info section
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'template-info';
-    
-    const title = document.createElement('h3');
-    title.textContent = template.name;
-    
-    const description = document.createElement('p');
-    description.textContent = template.description;
-    
-    // Create features section
-    const featuresDiv = document.createElement('div');
-    featuresDiv.className = 'template-features';
-    
-    template.features.forEach(feature => {
-        const featureTag = document.createElement('span');
-        featureTag.className = 'feature-tag';
-        featureTag.textContent = feature;
-        featuresDiv.appendChild(featureTag);
-    });
-    
-    // Create actions section
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'template-actions';
-    
-    // Preview button
-    const previewBtn = document.createElement('button');
-    previewBtn.className = 'btn-primary template-preview-btn';
-    previewBtn.setAttribute('data-template-id', template.id);
-    
-    const previewIcon = document.createElement('i');
-    previewIcon.className = 'fas fa-eye';
-    previewBtn.appendChild(previewIcon);
-    previewBtn.appendChild(document.createTextNode(' Preview'));
-    
-    // Download button
-    const downloadBtn = document.createElement('button');
-    downloadBtn.className = 'btn-secondary template-download-btn';
-    downloadBtn.setAttribute('data-template-id', template.id);
-    if (template.isPremium) {
-        downloadBtn.setAttribute('data-premium', 'true');
-    }
-    
-    const downloadIcon = document.createElement('i');
-    downloadIcon.className = 'fas fa-download';
-    downloadBtn.appendChild(downloadIcon);
-    downloadBtn.appendChild(document.createTextNode(template.isPremium ? ' 🔒 Download' : ' Download'));
-    
-    actionsDiv.appendChild(previewBtn);
-    actionsDiv.appendChild(downloadBtn);
-    
-    // Assemble the card
-    infoDiv.appendChild(title);
-    infoDiv.appendChild(description);
-    infoDiv.appendChild(featuresDiv);
-    infoDiv.appendChild(actionsDiv);
-    
-    card.appendChild(previewDiv);
-    card.appendChild(infoDiv);
+    card.innerHTML = `
+        <div class="template-preview">
+            <i class="${template.previewIcon}"></i>
+            <span class="template-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="template-info">
+            <h3>${template.name}</h3>
+            <p>${template.description}</p>
+            <div class="template-features">
+                ${template.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+            </div>
+            <div class="template-actions">
+                <button class="btn-primary template-preview-btn" data-template-id="${template.id}">
+                    <i class="fas fa-eye"></i>
+                    Preview
+                </button>
+                <button class="btn-secondary template-download-btn" data-template-id="${template.id}" 
+                        ${template.isPremium ? 'data-premium="true"' : ''}>
+                    <i class="fas fa-download"></i>
+                    ${template.isPremium ? '🔒 Download' : 'Download'}
+                </button>
+            </div>
+        </div>
+    `;
 
     return card;
 }
@@ -231,121 +185,41 @@ function handleTemplatePreview(templateId) {
 function createPreviewModal(template) {
     const modal = document.createElement('div');
     modal.className = 'modal template-preview-modal';
-    
-    // Create modal structure using DOM methods (XSS-safe)
-    const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content template-preview-content';
-    
-    // Close button
-    const closeBtn = document.createElement('span');
-    closeBtn.className = 'modal-close';
-    closeBtn.innerHTML = '&times;';
-    
-    // Header section
-    const previewHeader = document.createElement('div');
-    previewHeader.className = 'preview-header';
-    
-    const title = document.createElement('h2');
-    title.textContent = template.name; // XSS-safe text assignment
-    
-    const badge = document.createElement('span');
-    badge.className = `template-badge ${template.isPremium ? 'premium' : 'free'}`;
-    badge.textContent = template.isPremium ? 'Premium' : 'Free'; // XSS-safe text assignment
-    
-    previewHeader.appendChild(title);
-    previewHeader.appendChild(badge);
-    
-    // Body section
-    const previewBody = document.createElement('div');
-    previewBody.className = 'preview-body';
-    
-    // Preview image section
-    const previewImage = document.createElement('div');
-    previewImage.className = 'preview-image';
-    
-    const icon = document.createElement('i');
-    icon.className = template.previewIcon; // Note: FontAwesome class names are controlled, low XSS risk
-    icon.style.cssText = 'font-size: 4rem; color: #6B7280;';
-    
-    const previewText = document.createElement('p');
-    previewText.style.cssText = 'margin-top: 20px; color: #6B7280;';
-    previewText.textContent = 'Template Preview';
-    
-    const previewSubtext = document.createElement('p');
-    previewSubtext.style.cssText = 'font-size: 0.875rem; color: #9CA3AF;';
-    previewSubtext.textContent = 'Full preview available after download';
-    
-    previewImage.appendChild(icon);
-    previewImage.appendChild(previewText);
-    previewImage.appendChild(previewSubtext);
-    
-    // Details section
-    const previewDetails = document.createElement('div');
-    previewDetails.className = 'preview-details';
-    
-    const featuresTitle = document.createElement('h3');
-    featuresTitle.textContent = 'Template Features';
-    
-    const featuresList = document.createElement('ul');
-    featuresList.className = 'features-list';
-    
-    template.features.forEach(feature => {
-        const listItem = document.createElement('li');
-        const checkIcon = document.createElement('i');
-        checkIcon.className = 'fas fa-check';
-        listItem.appendChild(checkIcon);
-        listItem.appendChild(document.createTextNode(' ' + feature)); // XSS-safe text node
-        featuresList.appendChild(listItem);
-    });
-    
-    const descriptionDiv = document.createElement('div');
-    descriptionDiv.className = 'preview-description';
-    
-    const descTitle = document.createElement('h4');
-    descTitle.textContent = 'Description';
-    
-    const descText = document.createElement('p');
-    descText.textContent = template.description; // XSS-safe text assignment
-    
-    descriptionDiv.appendChild(descTitle);
-    descriptionDiv.appendChild(descText);
-    
-    previewDetails.appendChild(featuresTitle);
-    previewDetails.appendChild(featuresList);
-    previewDetails.appendChild(descriptionDiv);
-    
-    previewBody.appendChild(previewImage);
-    previewBody.appendChild(previewDetails);
-    
-    // Actions section
-    const previewActions = document.createElement('div');
-    previewActions.className = 'preview-actions';
-    
-    const closeButton = document.createElement('button');
-    closeButton.className = 'btn-secondary';
-    closeButton.textContent = 'Close';
-    closeButton.addEventListener('click', () => modal.remove());
-    
-    const downloadButton = document.createElement('button');
-    downloadButton.className = 'btn-primary';
-    downloadButton.addEventListener('click', () => handleTemplateDownload(template.id, template.isPremium));
-    
-    const downloadIcon = document.createElement('i');
-    downloadIcon.className = 'fas fa-download';
-    
-    downloadButton.appendChild(downloadIcon);
-    downloadButton.appendChild(document.createTextNode(' ' + (template.isPremium ? '🔒 Download Premium' : 'Download Free')));
-    
-    previewActions.appendChild(closeButton);
-    previewActions.appendChild(downloadButton);
-    
-    // Assemble modal
-    modalContent.appendChild(closeBtn);
-    modalContent.appendChild(previewHeader);
-    modalContent.appendChild(previewBody);
-    modalContent.appendChild(previewActions);
-    
-    modal.appendChild(modalContent);
+    modal.innerHTML = `
+        <div class="modal-content template-preview-content">
+            <span class="modal-close">&times;</span>
+            <div class="preview-header">
+                <h2>${template.name}</h2>
+                <span class="template-badge ${template.isPremium ? 'premium' : 'free'}">
+                    ${template.isPremium ? 'Premium' : 'Free'}
+                </span>
+            </div>
+            <div class="preview-body">
+                <div class="preview-image">
+                    <i class="${template.previewIcon}" style="font-size: 4rem; color: #6B7280;"></i>
+                    <p style="margin-top: 20px; color: #6B7280;">Template Preview</p>
+                    <p style="font-size: 0.875rem; color: #9CA3AF;">Full preview available after download</p>
+                </div>
+                <div class="preview-details">
+                    <h3>Template Features</h3>
+                    <ul class="features-list">
+                        ${template.features.map(feature => `<li><i class="fas fa-check"></i> ${feature}</li>`).join('')}
+                    </ul>
+                    <div class="preview-description">
+                        <h4>Description</h4>
+                        <p>${template.description}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="preview-actions">
+                <button class="btn-secondary" onclick="this.closest('.modal').remove()">Close</button>
+                <button class="btn-primary" onclick="handleTemplateDownload('${template.id}', ${template.isPremium})">
+                    <i class="fas fa-download"></i>
+                    ${template.isPremium ? '🔒 Download Premium' : 'Download Free'}
+                </button>
+            </div>
+        </div>
+    `;
 
     // Add modal styles
     modal.style.cssText = `
@@ -375,7 +249,8 @@ function createPreviewModal(template) {
         position: relative;
     `;
 
-    // Close modal functionality (already configured above)
+    // Close modal functionality
+    const closeBtn = modal.querySelector('.modal-close');
     closeBtn.addEventListener('click', () => {
         modal.remove();
     });
@@ -562,28 +437,20 @@ function setupTemplateFilters() {
     const filterContainer = document.querySelector('.template-filters');
     if (!filterContainer) return;
 
-    // Clear container and create elements using DOM methods
-    filterContainer.innerHTML = '';
+    // Create filter buttons
+    const filtersHTML = templateCategories.map(category => `
+        <button class="filter-btn ${category.id === 'all' ? 'active' : ''}" 
+                data-category="${category.id}">
+            ${category.name}
+        </button>
+    `).join('');
 
-    // Create title
-    const title = document.createElement('h3');
-    title.textContent = 'Filter Templates';
-    filterContainer.appendChild(title);
-
-    // Create filter buttons container
-    const filterButtonsDiv = document.createElement('div');
-    filterButtonsDiv.className = 'filter-buttons';
-
-    // Create filter buttons using DOM methods
-    templateCategories.forEach(category => {
-        const button = document.createElement('button');
-        button.className = `filter-btn ${category.id === 'all' ? 'active' : ''}`;
-        button.setAttribute('data-category', category.id);
-        button.textContent = category.name;
-        filterButtonsDiv.appendChild(button);
-    });
-
-    filterContainer.appendChild(filterButtonsDiv);
+    filterContainer.innerHTML = `
+        <h3>Filter Templates</h3>
+        <div class="filter-buttons">
+            ${filtersHTML}
+        </div>
+    `;
 
     // Add filter functionality
     const filterButtons = filterContainer.querySelectorAll('.filter-btn');
