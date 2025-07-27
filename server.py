@@ -319,14 +319,265 @@ def get_admin_templates():
     except Exception as e:
         return jsonify({'message': 'Failed to fetch templates'}), 500
 
-@app.route('/api/admin/templates/<template_id>', methods=['DELETE'])
-def delete_template(template_id):
+# Article Management API Endpoints
+@app.route('/api/admin/articles', methods=['POST'])
+def create_article():
     try:
-        # In real implementation, delete from database and file storage
-        return jsonify({'message': 'Template deleted successfully'}), 200
+        data = request.get_json()
+        
+        # Validate required fields
+        if not data.get('title') or not data.get('content'):
+            return jsonify({'message': 'Title and content are required'}), 400
+        
+        # Generate slug if not provided
+        slug = data.get('slug')
+        if not slug:
+            slug = data['title'].lower().replace(' ', '-').replace('--', '-')
+        
+        # Insert article into database
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        # Check if slug already exists
+        cur.execute("SELECT id FROM articles WHERE slug = %s", (slug,))
+        if cur.fetchone():
+            return jsonify({'message': 'Slug already exists'}), 400
+        
+        # Insert new article
+        cur.execute("""
+            INSERT INTO articles (title, slug, content, author, excerpt, cover_image_url, is_published, is_featured)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id, created_at
+        """, (
+            data['title'],
+            slug,
+            data['content'],
+            data.get('author', 'ResumeSmartBot'),
+            data.get('excerpt', ''),
+            data.get('cover_image_url'),
+            data.get('is_published', True),
+            data.get('is_featured', False)
+        ))
+        
+        article_id, created_at = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            'message': 'Article created successfully',
+            'article': {
+                'id': str(article_id),
+                'title': data['title'],
+                'slug': slug,
+                'created_at': created_at.isoformat()
+            }
+        }), 201
         
     except Exception as e:
-        return jsonify({'message': 'Failed to delete template'}), 500
+        return jsonify({'message': f'Failed to create article: {str(e)}'}), 500
+
+@app.route('/api/admin/articles', methods=['GET'])
+def get_admin_articles():
+    try:
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT id, title, slug, author, excerpt, created_at, updated_at, 
+                   cover_image_url, is_published, is_featured
+            FROM articles 
+            ORDER BY created_at DESC
+        """)
+        
+        articles = []
+        for row in cur.fetchall():
+            articles.append({
+                'id': str(row[0]),
+                'title': row[1],
+                'slug': row[2],
+                'author': row[3],
+                'excerpt': row[4],
+                'created_at': row[5].isoformat() if row[5] else None,
+                'updated_at': row[6].isoformat() if row[6] else None,
+                'cover_image_url': row[7],
+                'is_published': row[8],
+                'is_featured': row[9]
+            })
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify(articles)
+        
+    except Exception as e:
+        return jsonify({'message': f'Failed to fetch articles: {str(e)}'}), 500
+
+@app.route('/api/articles', methods=['GET'])
+def get_published_articles():
+    try:
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        # Get published articles for homepage
+        cur.execute("""
+            SELECT id, title, slug, author, excerpt, created_at, 
+                   cover_image_url, is_featured
+            FROM articles 
+            WHERE is_published = TRUE
+            ORDER BY is_featured DESC, created_at DESC
+            LIMIT 10
+        """)
+        
+        articles = []
+        for row in cur.fetchall():
+            articles.append({
+                'id': str(row[0]),
+                'title': row[1],
+                'slug': row[2],
+                'author': row[3],
+                'excerpt': row[4],
+                'created_at': row[5].isoformat() if row[5] else None,
+                'cover_image_url': row[6],
+                'is_featured': row[7]
+            })
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify(articles)
+        
+    except Exception as e:
+        return jsonify({'message': f'Failed to fetch articles: {str(e)}'}), 500
+
+@app.route('/articles/<slug>')
+def view_article(slug):
+    try:
+        import psycopg2
+        import os
+        
+        database_url = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT id, title, slug, content, author, excerpt, created_at, 
+                   cover_image_url, is_featured
+            FROM articles 
+            WHERE slug = %s AND is_published = TRUE
+        """, (slug,))
+        
+        article = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if not article:
+            return "Article not found", 404
+        
+        # Simple markdown-like processing
+        content = article[3]
+        content = content.replace('\\n', '\n')
+        content = content.replace('**', '<strong>').replace('**', '</strong>')
+        content = content.replace('## ', '<h2>').replace('\n', '</h2>\n<p>')
+        content = f'<p>{content}</p>'
+        
+        # Create article page HTML
+        article_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{article[1]} - ResumeSmartBuild</title>
+    <meta name="description" content="{article[5]}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-['Inter']">
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">RS</span>
+                    </div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        ResumeSmartBuild
+                    </h1>
+                </a>
+                <div class="flex items-center space-x-6">
+                    <a href="/" class="text-gray-600 hover:text-blue-600 font-medium">Home</a>
+                    <a href="/" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-gradient-to-br from-blue-50 to-purple-50 py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="flex items-center space-x-2 mb-4">
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Career Advice</span>
+                <span class="text-gray-500">•</span>
+                <time class="text-gray-500">{article[6].strftime('%B %d, %Y') if article[6] else ''}</time>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                {article[1]}
+            </h1>
+            <p class="text-xl text-gray-600 leading-relaxed">
+                {article[5]}
+            </p>
+        </div>
+    </header>
+
+    <article class="py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="prose prose-lg max-w-none text-gray-700">
+                {content}
+            </div>
+
+            <div class="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-center">
+                <h2 class="text-3xl font-bold text-white mb-4">Ready to Build Your Perfect Resume?</h2>
+                <p class="text-blue-100 mb-6">
+                    Put these tips into action with ResumeSmartBuild's AI-powered resume builder
+                </p>
+                <a href="/" class="bg-white text-blue-600 px-8 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
+                    Get Started Free
+                </a>
+            </div>
+        </div>
+    </article>
+
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">RS</span>
+                </div>
+                <span class="text-xl font-bold">ResumeSmartBuild</span>
+            </div>
+            <p class="text-gray-400">AI-powered resume builder for career success</p>
+        </div>
+    </footer>
+</body>
+</html>"""
+        
+        return article_html
+        
+    except Exception as e:
+        return f"Error loading article: {str(e)}", 500
 
 @app.route('/api/cover-letters/generate', methods=['POST'])
 def generate_cover_letter():
@@ -360,6 +611,11 @@ Sincerely,
         
     except Exception as e:
         return jsonify({'message': 'Internal server error'}), 500
+
+# Admin routes
+@app.route('/admin/<path:filename>')
+def serve_admin(filename):
+    return send_from_directory('admin', filename)
 
 if __name__ == '__main__':
     print("🚀 ResumeSmartBuild Server starting on port 5000")

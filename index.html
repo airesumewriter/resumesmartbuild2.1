@@ -295,6 +295,136 @@
             );
         };
 
+        // Articles Section Component
+        const ArticlesSection = () => {
+            const [articles, setArticles] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                loadArticles();
+            }, []);
+
+            const loadArticles = async () => {
+                try {
+                    const response = await fetch('/api/articles');
+                    if (response.ok) {
+                        const articlesData = await response.json();
+                        setArticles(articlesData.slice(0, 4)); // Show max 4 articles
+                    }
+                } catch (error) {
+                    console.error('Failed to load articles:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const getGradientColor = (index) => {
+                const gradients = [
+                    'from-blue-100 to-purple-100',
+                    'from-green-100 to-blue-100', 
+                    'from-purple-100 to-pink-100',
+                    'from-yellow-100 to-orange-100'
+                ];
+                return gradients[index % gradients.length];
+            };
+
+            const getIconColor = (index) => {
+                const colors = ['text-blue-600', 'text-green-600', 'text-purple-600', 'text-yellow-600'];
+                return colors[index % colors.length];
+            };
+
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 0) return 'Today';
+                if (diffDays === 1) return 'Yesterday';
+                if (diffDays < 7) return `${diffDays} days ago`;
+                return date.toLocaleDateString();
+            };
+
+            if (loading) {
+                return (
+                    <div className="bg-white rounded-lg card-shadow p-8 mb-16">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">📰 Latest Articles</h2>
+                            <p className="text-xl text-gray-600">Expert advice to accelerate your career growth</p>
+                        </div>
+                        <div className="text-center py-8">
+                            <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading latest articles...</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (articles.length === 0) {
+                return (
+                    <div className="bg-white rounded-lg card-shadow p-8 mb-16">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">📰 Latest Articles</h2>
+                            <p className="text-xl text-gray-600">Expert advice to accelerate your career growth</p>
+                        </div>
+                        <div className="text-center py-8">
+                            <div className="text-6xl mb-4">📝</div>
+                            <p className="text-gray-600">No articles available yet</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="bg-white rounded-lg card-shadow p-8 mb-16">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-4">📰 Latest Articles</h2>
+                        <p className="text-xl text-gray-600">Expert advice to accelerate your career growth</p>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {articles.map((article, index) => (
+                            <a 
+                                key={article.id} 
+                                href={`/articles/${article.slug}`}
+                                className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow group"
+                            >
+                                <div className={`h-32 bg-gradient-to-br ${getGradientColor(index)} flex items-center justify-center`}>
+                                    {article.cover_image_url ? (
+                                        <img 
+                                            src={article.cover_image_url} 
+                                            alt={article.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <svg className={`w-8 h-8 ${getIconColor(index)}`} fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+                                        </svg>
+                                    )}
+                                </div>
+                                <div className="p-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs text-gray-500">{formatDate(article.created_at)}</span>
+                                        {article.is_featured && (
+                                            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">🆕 New</span>
+                                        )}
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 mb-2 text-sm group-hover:text-blue-600 transition-colors">
+                                        {article.title}
+                                    </h3>
+                                    <p className="text-gray-600 text-xs mb-3 line-clamp-2">
+                                        {article.excerpt}
+                                    </p>
+                                    <span className="text-blue-600 text-xs font-semibold group-hover:text-blue-700">
+                                        Read More →
+                                    </span>
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
         // Main App Component
         const App = () => {
             const [user, setUser] = useState(null);
@@ -408,85 +538,8 @@
                             </div>
                         </div>
 
-                        {/* Career Articles Section */}
-                        <div className="bg-white rounded-lg card-shadow p-8 mb-16">
-                            <div className="text-center mb-12">
-                                <h2 className="text-3xl font-bold text-gray-900 mb-4">Insights & Career Tips</h2>
-                                <p className="text-xl text-gray-600">Expert advice to accelerate your career growth</p>
-                            </div>
-                            
-                            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {/* Article Preview 1 */}
-                                <div className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                                    <div className="h-32 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                                        <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
-                                        </svg>
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-gray-900 mb-2 text-sm">Beat ATS Systems: 10 Proven Strategies</h3>
-                                        <p className="text-gray-600 text-xs mb-3">Master ATS optimization with insider secrets from HR professionals...</p>
-                                        <a href="/articles/article1.html" className="text-blue-600 text-xs font-semibold hover:text-blue-700">
-                                            Read More →
-                                        </a>
-                                    </div>
-                                </div>
-
-                                {/* Article Preview 2 */}
-                                <div className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                                    <div className="h-32 bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
-                                        <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-                                        </svg>
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-gray-900 mb-2 text-sm">Complete Guide to Remote Jobs</h3>
-                                        <p className="text-gray-600 text-xs mb-3">Discover the best remote job platforms and optimization strategies...</p>
-                                        <a href="/articles/article2.html" className="text-blue-600 text-xs font-semibold hover:text-blue-700">
-                                            Read More →
-                                        </a>
-                                    </div>
-                                </div>
-
-                                {/* Article Preview 3 */}
-                                <div className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                                    <div className="h-32 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                                        <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M16 4c0-1.11-.89-2-2-2s-2 .89-2 2 .89 2 2 2 2-.89 2-2z"/>
-                                        </svg>
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-gray-900 mb-2 text-sm">STAR Method Interview Mastery</h3>
-                                        <p className="text-gray-600 text-xs mb-3">Learn how to structure compelling behavioral interview answers...</p>
-                                        <a href="/articles/article3.html" className="text-blue-600 text-xs font-semibold hover:text-blue-700">
-                                            Read More →
-                                        </a>
-                                    </div>
-                                </div>
-
-                                {/* Article Preview 4 */}
-                                <div className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                                    <div className="h-32 bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center">
-                                        <svg className="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                        </svg>
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-gray-900 mb-2 text-sm">Power Words for Resumes</h3>
-                                        <p className="text-gray-600 text-xs mb-3">Transform your resume with action verbs that grab attention...</p>
-                                        <a href="/articles/article5.html" className="text-blue-600 text-xs font-semibold hover:text-blue-700">
-                                            Read More →
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="text-center mt-8">
-                                <a href="/articles/" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                                    View All Articles
-                                </a>
-                            </div>
-                        </div>
+                        {/* Latest Articles Section */}
+                        <ArticlesSection />
 
                         {/* CTA */}
                         {!user && (

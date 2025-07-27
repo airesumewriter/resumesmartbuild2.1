@@ -1,0 +1,141 @@
+🚀 PROJECT UPGRADE: ResumeSmartBuild.com – Admin Article System + Homepage Article Previews
+
+👤 USER ROLE: Admin (me) must be able to add and publish new blog-style articles.
+📌 GOAL: Articles will appear instantly on the homepage in a well-designed teaser/tile section, **without breaking existing features** like resume builder, ATS scanner, templates, or job matcher.
+
+=======================
+🔧 TASKS (DO LINE-BY-LINE)
+=======================
+
+1. ✅ Database (PostgreSQL):
+Create new `ARTICLES` table:
+
+```sql
+CREATE TABLE articles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR NOT NULL,
+  slug VARCHAR UNIQUE NOT NULL,
+  content TEXT NOT NULL,
+  author VARCHAR DEFAULT 'ResumeSmartBot',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  cover_image_url TEXT,
+  excerpt TEXT,
+  is_published BOOLEAN DEFAULT TRUE,
+  affiliate_links JSONB DEFAULT '[]'::jsonb,
+  is_featured BOOLEAN DEFAULT FALSE
+);
+
+
+2. ✅ Admin UI:
+Create /admin/articles route/page:
+
+Form to post a new article (title, content, excerpt, image, etc.)
+
+Button: [Publish Article]
+
+Auto-generate slug from title
+
+Store article in DB
+
+Validation: Title + Content are required
+
+If success: show preview of how it will appear on homepage
+
+3. ✅ Homepage Upgrade:
+On main page (below or above template gallery), add:
+
+📰 Section: Latest Articles
+
+Display up to 10 latest is_published = true articles
+
+Show: title, short excerpt, "Read More" → /articles/:slug
+
+Show "🆕 New" badge for latest post
+
+Hover reveal effect (CSS or Tailwind)
+
+Responsive for mobile
+
+Apply gamified teaser effect (e.g., slight glow or tilt)
+
+4. ✅ Individual Article Page:
+Create dynamic route /articles/:slug
+
+Display full content
+
+Parse & embed any affiliate link (<a href="..." rel="nofollow sponsored">)
+
+Allow <h2>, <ul>, <p>, <img>, and CTA blocks
+
+Optionally add: "Related Templates" below post (link to premium)
+
+5. ✅ SEO & Google Ads:
+
+Add schema.org article metadata to each post
+
+Prepare space on article page layout for Google Ads (top and bottom)
+
+Add recommended tags and category metadata for future targeting
+
+6. ✅ Behavioral Tactics:
+Use behavioral triggers:
+
+“Users who read this also used [Template X]” → recommend Premium
+
+Highlight WFH jobs or scan boost as "next step" after article
+
+7. ✅ Access Control:
+Only admin can access /admin/articles:
+
+Check user.is_admin === true
+
+Non-admins = 403 Forbidden
+
+8. ✅ Extras:
+
+On homepage: If no articles exist, gracefully hide the section
+
+Order articles by created_at DESC
+
+Use reusable card component with fallback image
+
+Option: Add "Featured Article" badge if is_featured = true
+
+=======================
+✅ INSTRUCTIONS TO REPLIT AGENT
+🧠 Carefully implement each step above in order, ensuring:
+
+✅ No existing functionality is overwritten
+
+✅ Code is organized in new files/modules
+
+✅ Every route is tested with sample article
+
+🔍 Then run full test:
+
+Add article via admin form
+
+Check it appears on homepage
+
+Click through to view full article
+
+Confirm no errors in console/backend
+
+💡 Reminder:
+
+Do not touch core builder/ATS/job tools
+
+Modularize all new logic
+
+Keep structure readable and scalable
+
+=======================
+✅ FINAL VERIFICATION
+After implementation:
+
+Print confirmation that /admin/articles, /articles, and homepage preview work
+
+Indicate that all systems are working without error
+
+IF READY → EXECUTE NOW.
