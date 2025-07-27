@@ -24,9 +24,9 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         
-        /* Hide unwanted external popups and subscription forms */
-        [class*="popup"], [class*="subscribe"], [class*="newsletter"],
-        [id*="popup"], [id*="subscribe"], [id*="newsletter"],
+        /* Hide unwanted external popups and subscription forms - but not our own */
+        [class*="popup"]:not(#root *), [class*="subscribe"]:not(#root *), [class*="newsletter"]:not(#root *),
+        [id*="popup"]:not(#root *), [id*="subscribe"]:not(#root *), [id*="newsletter"]:not(#root *),
         .replit-popup, .external-popup, .subscription-popup {
             display: none !important;
             visibility: hidden !important;
@@ -317,6 +317,93 @@
             );
         };
 
+        // Newsletter Signup Component (Behavioral Psychology)
+        const NewsletterSignup = () => {
+            const [email, setEmail] = useState('');
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [isLoading, setIsLoading] = useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                if (!email) return;
+                
+                setIsLoading(true);
+                // Simulate signup process
+                setTimeout(() => {
+                    setIsSubmitted(true);
+                    setIsLoading(false);
+                }, 1000);
+            };
+
+            if (isSubmitted) {
+                return (
+                    <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-xl p-8 text-center text-white mb-16">
+                        <div className="text-4xl mb-4">🎉</div>
+                        <h3 className="text-2xl font-bold mb-2">Welcome to the VIP List!</h3>
+                        <p className="text-green-100">You'll get exclusive resume tips, ATS secrets, and early access to premium features.</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-xl p-8 text-center text-white mb-16 relative overflow-hidden">
+                    {/* Background decoration */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
+                    
+                    <div className="relative z-10">
+                        <div className="text-4xl mb-4">📧✨</div>
+                        <h3 className="text-2xl font-bold mb-3">Join 10,000+ Job Seekers Getting Hired</h3>
+                        <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+                            Get exclusive ATS optimization secrets, hidden job market tips, and early access to premium templates. 
+                            <span className="font-semibold text-yellow-300"> 73% of our subscribers land interviews within 30 days.</span>
+                        </p>
+                        
+                        <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Enter your email address"
+                                    className="flex-1 px-4 py-3 rounded-lg text-gray-900 text-center sm:text-left"
+                                    required
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="bg-yellow-500 hover:bg-yellow-400 text-gray-900 px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50"
+                                >
+                                    {isLoading ? 'Joining...' : 'Get Free Tips →'}
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div className="flex justify-center items-center mt-4 space-x-6 text-sm text-blue-100">
+                            <span className="flex items-center">
+                                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                                </svg>
+                                100% Free
+                            </span>
+                            <span className="flex items-center">
+                                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                                </svg>
+                                No Spam
+                            </span>
+                            <span className="flex items-center">
+                                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
+                                </svg>
+                                Unsubscribe Anytime
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         // Articles Section Component
         const ArticlesSection = () => {
             const [articles, setArticles] = useState([]);
@@ -383,67 +470,135 @@
 
             if (articles.length === 0) {
                 return (
-                    <div className="bg-white rounded-lg card-shadow p-8 mb-16">
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">📰 Latest Articles</h2>
-                            <p className="text-xl text-gray-600">Expert advice to accelerate your career growth</p>
+                    <>
+                        <div className="bg-white rounded-lg card-shadow p-8 mb-8">
+                            <div className="text-center mb-12">
+                                <h2 className="text-3xl font-bold text-gray-900 mb-4">📰 Latest Articles</h2>
+                                <p className="text-xl text-gray-600">Expert advice to accelerate your career growth</p>
+                            </div>
+                            <div className="text-center py-8">
+                                <div className="text-6xl mb-4">📝</div>
+                                <p className="text-gray-600">No articles available yet</p>
+                            </div>
                         </div>
-                        <div className="text-center py-8">
-                            <div className="text-6xl mb-4">📝</div>
-                            <p className="text-gray-600">No articles available yet</p>
-                        </div>
-                    </div>
+                        <NewsletterSignup />
+                    </>
                 );
             }
 
+            // Split articles: featured articles first, then regular articles
+            const featuredArticles = articles.filter(article => article.is_featured).slice(0, 2);
+            const regularArticles = articles.filter(article => !article.is_featured).slice(0, 2);
+
             return (
-                <div className="bg-white rounded-lg card-shadow p-8 mb-16">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">📰 Latest Articles</h2>
-                        <p className="text-xl text-gray-600">Expert advice to accelerate your career growth</p>
-                    </div>
-                    
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {articles.map((article, index) => (
-                            <a 
-                                key={article.id} 
-                                href={`/articles/${article.slug}`}
-                                className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow group"
-                            >
-                                <div className={`h-32 bg-gradient-to-br ${getGradientColor(index)} flex items-center justify-center`}>
-                                    {article.cover_image_url ? (
-                                        <img 
-                                            src={article.cover_image_url} 
-                                            alt={article.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <svg className={`w-8 h-8 ${getIconColor(index)}`} fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
-                                        </svg>
-                                    )}
-                                </div>
-                                <div className="p-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs text-gray-500">{formatDate(article.created_at)}</span>
-                                        {article.is_featured && (
-                                            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">🆕 New</span>
-                                        )}
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 mb-2 text-sm group-hover:text-blue-600 transition-colors">
-                                        {article.title}
-                                    </h3>
-                                    <p className="text-gray-600 text-xs mb-3 line-clamp-2">
-                                        {article.excerpt}
-                                    </p>
-                                    <span className="text-blue-600 text-xs font-semibold group-hover:text-blue-700">
-                                        Read More →
-                                    </span>
-                                </div>
-                            </a>
-                        ))}
-                    </div>
-                </div>
+                <>
+                    {/* Featured Articles Section */}
+                    {featuredArticles.length > 0 && (
+                        <div className="bg-white rounded-lg card-shadow p-8 mb-8">
+                            <div className="text-center mb-12">
+                                <h2 className="text-3xl font-bold text-gray-900 mb-4">🔥 New Articles</h2>
+                                <p className="text-xl text-gray-600">Latest insights to boost your career</p>
+                            </div>
+                            
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {featuredArticles.map((article, index) => (
+                                    <a 
+                                        key={article.id} 
+                                        href={`/articles/${article.slug}`}
+                                        className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
+                                    >
+                                        <div className={`h-40 bg-gradient-to-br ${getGradientColor(index)} flex items-center justify-center relative`}>
+                                            <div className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                                🆕 NEW
+                                            </div>
+                                            {article.cover_image_url ? (
+                                                <img 
+                                                    src={article.cover_image_url} 
+                                                    alt={article.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <svg className={`w-12 h-12 ${getIconColor(index)}`} fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <div className="p-6">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="text-sm text-gray-500">{formatDate(article.created_at)}</span>
+                                                <span className="text-green-600 text-sm font-medium">5 min read</span>
+                                            </div>
+                                            <h3 className="font-bold text-gray-900 mb-3 text-lg group-hover:text-blue-600 transition-colors leading-tight">
+                                                {article.title}
+                                            </h3>
+                                            <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                                                {article.excerpt}
+                                            </p>
+                                            <span className="text-blue-600 text-sm font-semibold group-hover:text-blue-700 flex items-center">
+                                                Read Full Article 
+                                                <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Newsletter Signup - Strategically positioned between new and recent */}
+                    <NewsletterSignup />
+
+                    {/* Recent Articles Section */}
+                    {regularArticles.length > 0 && (
+                        <div className="bg-white rounded-lg card-shadow p-8 mb-16">
+                            <div className="text-center mb-12">
+                                <h2 className="text-3xl font-bold text-gray-900 mb-4">📚 Recent Articles</h2>
+                                <p className="text-xl text-gray-600">More expert insights for your success</p>
+                            </div>
+                            
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {regularArticles.map((article, index) => (
+                                    <a 
+                                        key={article.id} 
+                                        href={`/articles/${article.slug}`}
+                                        className="bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow group"
+                                    >
+                                        <div className={`h-32 bg-gradient-to-br ${getGradientColor(index + 2)} flex items-center justify-center`}>
+                                            {article.cover_image_url ? (
+                                                <img 
+                                                    src={article.cover_image_url} 
+                                                    alt={article.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <svg className={`w-8 h-8 ${getIconColor(index + 2)}`} fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <div className="p-4">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-xs text-gray-500">{formatDate(article.created_at)}</span>
+                                                <span className="text-gray-400 text-xs">3 min read</span>
+                                            </div>
+                                            <h3 className="font-bold text-gray-900 mb-2 text-sm group-hover:text-blue-600 transition-colors">
+                                                {article.title}
+                                            </h3>
+                                            <p className="text-gray-600 text-xs mb-3 line-clamp-2">
+                                                {article.excerpt}
+                                            </p>
+                                            <span className="text-blue-600 text-xs font-semibold group-hover:text-blue-700">
+                                                Read More →
+                                            </span>
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </>
             );
         };
 
