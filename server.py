@@ -75,11 +75,23 @@ def articles_index():
 
 @app.route('/articles/<path:filename>')
 def articles_content(filename):
-    return send_from_directory('articles', filename)
+    # Handle both static files and dynamic article routes
+    if filename.endswith('.html'):
+        try:
+            return send_from_directory('articles', filename)
+        except:
+            return "Article not found", 404
+    else:
+        # This is a dynamic article slug - redirect to the article handler
+        return get_article_by_slug(filename)
 
 @app.route('/admin/<path:filename>')
 def admin_content(filename):
     return send_from_directory('admin', filename)
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
