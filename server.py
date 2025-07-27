@@ -69,6 +69,18 @@ jobs_db = [
 def index():
     return send_from_directory('.', 'index.html')
 
+@app.route('/articles/')
+def articles_index():
+    return send_from_directory('articles', 'index.html')
+
+@app.route('/articles/<path:filename>')
+def articles_content(filename):
+    return send_from_directory('articles', filename)
+
+@app.route('/admin/<path:filename>')
+def admin_content(filename):
+    return send_from_directory('admin', filename)
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'ok', 'timestamp': time.time()})
@@ -223,6 +235,98 @@ def get_jobs():
         filtered = [j for j in filtered if j['isRemote']]
     
     return jsonify(filtered)
+
+@app.route('/api/admin/templates', methods=['POST'])
+def upload_template():
+    try:
+        # Get form data
+        template_name = request.form.get('templateName')
+        category = request.form.get('category')
+        industries = request.form.get('industries', '').split(',')
+        pricing = request.form.get('pricing')
+        description = request.form.get('description', '')
+        
+        # Handle file upload (in real implementation, save to cloud storage)
+        template_file = request.files.get('templateFile')
+        thumbnail_file = request.files.get('thumbnailFile')
+        
+        if not template_file:
+            return jsonify({'message': 'Template file is required'}), 400
+        
+        # Simulate saving to database
+        template_data = {
+            'id': str(random.randint(100000, 999999)),
+            'name': template_name,
+            'category': category,
+            'industries': [industry.strip() for industry in industries if industry.strip()],
+            'pricing': pricing,
+            'description': description,
+            'filename': template_file.filename,
+            'fileSize': len(template_file.read()),
+            'thumbnailUrl': thumbnail_file.filename if thumbnail_file else None,
+            'downloads': 0,
+            'createdAt': time.time(),
+            'isActive': True
+        }
+        
+        return jsonify({
+            'message': 'Template uploaded successfully',
+            'template': template_data
+        }), 201
+        
+    except Exception as e:
+        return jsonify({'message': 'Upload failed: ' + str(e)}), 500
+
+@app.route('/api/admin/templates', methods=['GET'])
+def get_admin_templates():
+    try:
+        # Mock admin template data with more details
+        templates = [
+            {
+                'id': '1',
+                'name': 'Modern Tech Professional',
+                'category': 'tech',
+                'industries': ['Software Development', 'Data Science'],
+                'pricing': 'free',
+                'downloads': 1234,
+                'isActive': True,
+                'createdAt': time.time() - 86400 * 30
+            },
+            {
+                'id': '2', 
+                'name': 'Healthcare Professional',
+                'category': 'healthcare',
+                'industries': ['Nursing', 'Medical Practice'],
+                'pricing': 'free',
+                'downloads': 987,
+                'isActive': True,
+                'createdAt': time.time() - 86400 * 20
+            },
+            {
+                'id': '3',
+                'name': 'Executive Premium',
+                'category': 'finance',
+                'industries': ['Investment Banking', 'Corporate Finance'],
+                'pricing': 'premium',
+                'downloads': 756,
+                'isActive': True,
+                'createdAt': time.time() - 86400 * 10
+            }
+        ]
+        
+        return jsonify(templates)
+        
+    except Exception as e:
+        return jsonify({'message': 'Failed to fetch templates'}), 500
+
+@app.route('/api/admin/templates/<template_id>', methods=['DELETE'])
+def delete_template(template_id):
+    try:
+        # In real implementation, delete from database and file storage
+        return jsonify({'message': 'Template deleted successfully'}), 200
+        
+    except Exception as e:
+        return jsonify({'message': 'Failed to delete template'}), 500
 
 @app.route('/api/cover-letters/generate', methods=['POST'])
 def generate_cover_letter():

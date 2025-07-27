@@ -1,0 +1,133 @@
+🚀 CONTINUATION PROMPT: RESUMESMARTBUILD.COM ENHANCEMENT – ARTICLES SYSTEM + HOMEPAGE PREVIEW
+
+Please continue building the resumesmartbuild.com platform by integrating a dynamic Article Management System as follows:
+
+🔹 1. ARTICLES DIRECTORY SYSTEM
+
+- Create a `/articles/` folder
+- Inside, add 10 SEO-optimized HTML files named `article1.html` to `article10.html`
+- Each article must be:
+  - Minimum 1,000 words
+  - Topic: ATS tips, resume hacks, job market trends, remote job guides, interview prep, etc.
+  - Include meta title, meta description, and Schema.org article markup
+
+🔹 2. MAIN HOMEPAGE ARTICLES PREVIEW (TEASER SECTION)
+
+- On the main landing page (`index.html`), create an "Insights & Career Tips" section before the footer.
+- Show 4 article previews using styled cards:
+  - Thumbnail (placeholder or SVG-based)
+  - Title
+  - Short description (teaser)
+  - “Read More” button → links to the full article
+
+🔹 3. ARTICLES INDEX PAGE
+
+- Create `articles/index.html`
+- Lists all 10 articles with:
+  - Thumbnail, title, short teaser
+  - Date, tags (e.g., “ATS”, “Remote Work”)
+  - Pagination-ready structure
+- Use responsive layout (grid/flex)
+- Reuse design system: Tailwind CSS + Inter font + color palette from homepage
+
+🔹 4. LINK NAVIGATION
+
+- Update sidebar or hamburger menu to include: `Career Articles`
+- Make sure each article loads in a standalone responsive layout
+
+🔹 5. ADDITIONAL INSTRUCTION
+
+- Use clean, semantic HTML
+- Ensure mobile responsiveness
+- Avoid duplicate code blocks by modularizing repeated UI elements
+- Style article teasers/cards to match the hero section and template gallery
+- Recheck line by line — eliminate bugs, broken links, or missing styles
+- Validate all HTML and links
+- Test all 10 article links on homepage and `/articles/index.html`
+
+🔁 Once complete, ensure that:
+- Articles are crawlable by Google
+- Article index uses `<article>`, `<section>`, and Schema.org tags
+- The homepage previews are fast-loading (optimize images/SVGs)
+
+🎯 Final Goal:
+A fully integrated, responsive, SEO-optimized article system that enhances the resume builder platform and boosts long-term organic traffic.
+
+
+
+🚧 ADMIN PANEL & TEMPLATE PREVIEW ENHANCEMENT — resumesmartbuild.com
+
+Please continue the build by adding the following advanced features to complete the system:
+
+🔹 1. ADMIN TEMPLATE MANAGEMENT PANEL
+
+- Create `/admin/templates.html` (secured route)
+- Admin can:
+  - Upload new resume templates (PDF/HTML/SVG)
+  - Set template name, category, recommended industries
+  - Mark as “Free” or “Premium”
+  - Upload thumbnail/preview image
+  - See a live preview on the right panel
+
+🔹 2. BACKEND LOGIC FOR TEMPLATE MANAGEMENT
+
+- Extend `TEMPLATES` table schema:
+  ```sql
+  template_file_url VARCHAR,
+  recommended_industries TEXT[],
+  creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+Save uploaded template files to server/cloud storage
+
+Validate file type, name, and size
+
+Save metadata to the database
+
+Update logic to distinguish Free vs Premium for frontend rendering
+
+🔹 3. VISITOR TEMPLATE PREVIEW MODE
+
+For users who are not logged in:
+
+Clicking a template shows a preview-only view
+
+Watermark over resume
+
+“Login to Use Template” CTA
+
+For logged-in users:
+
+Full access to preview + edit
+
+Premium locked if not subscribed
+
+🔹 4. SECURITY & ACCESS CONTROL
+
+Restrict /admin/templates.html to logged-in users with admin role
+
+Only allow uploads from authorized admin accounts
+
+Secure file access paths to prevent abuse
+
+🔹 5. UI/UX DESIGN
+
+Use existing Tailwind + Inter + Hero UI patterns
+
+Admin Panel layout:
+
+Left: Form fields for upload
+
+Right: Live preview card (renders uploaded template)
+
+Add loading states and validation messages
+
+🔁 FINAL CHECK
+
+Test all uploaded templates for display on homepage
+
+Test free vs premium logic
+
+Confirm preview works correctly for both visitors and logged-in users
+
+Recheck all schema fields and UI components for errors or broken links
+
+🎯 Goal: Empower admin to manage templates without editing code and allow users to preview templates based on access level.
